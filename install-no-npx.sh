@@ -13,8 +13,8 @@ set -e
 #   curl -fsSL https://raw.githubusercontent.com/OWNER/REPO/main/install-no-npx.sh | bash
 # ============================================
 
-REPO_OWNER="OWNER"       # <-- UPDATE THIS after pushing to GitHub
-REPO_NAME="data_ai_agents"  # <-- UPDATE THIS if repo name is different
+REPO_OWNER="jouni-cloud2"
+REPO_NAME="data_ai_agents"
 BRANCH="main"
 
 REPO_URL="https://github.com/$REPO_OWNER/$REPO_NAME/archive/$BRANCH.tar.gz"

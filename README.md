@@ -14,13 +14,13 @@ AI-powered data platform development system that automates the journey from user
 ### Option 1: With npx (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/OWNER/REPO/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jouni-cloud2/data_ai_agents/main/install.sh | bash
 ```
 
 ### Option 2: Without Node.js
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/OWNER/REPO/main/install-no-npx.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jouni-cloud2/data_ai_agents/main/install-no-npx.sh | bash
 ```
 
 ### Option 3: Manual with degit

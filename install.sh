@@ -13,7 +13,7 @@ set -e
 # Requirements: Node.js (for npx)
 # ============================================
 
-REPO="OWNER/REPO"  # <-- UPDATE THIS after pushing to GitHub
+REPO="jouni-cloud2/data_ai_agents"
 
 echo "🚀 Installing Data AI Agents..."
 echo ""
