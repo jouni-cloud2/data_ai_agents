@@ -1,16 +1,26 @@
 ---
 name: databricks-deployment
 description: Deploying artifacts to Databricks workspaces.
+tools: terraform, databricks, az
 ---
 
 # Databricks Deployment Skill
 
+## Available CLI Tools
+
+| Tool | Purpose |
+|------|---------|
+| `terraform` | Infrastructure as Code for Databricks resources |
+| `databricks` | Databricks CLI for workspace operations |
+| `az` | Azure CLI for Azure Databricks management |
+
 ## Deployment Methods
 
-1. **Databricks Asset Bundles (DAB)** - Recommended
-2. **Databricks CLI**
-3. **REST API / SDK**
-4. **Git Integration (Repos)**
+1. **Terraform** - Recommended for infrastructure
+2. **Databricks Asset Bundles (DAB)** - Recommended for jobs/pipelines
+3. **Databricks CLI**
+4. **REST API / SDK**
+5. **Git Integration (Repos)**
 
 ## Databricks Asset Bundles (DAB)
 
@@ -431,14 +441,281 @@ if __name__ == "__main__":
     main()
 ```
 
+## Terraform Deployment
+
+### Provider Configuration
+```hcl
+# providers.tf
+terraform {
+  required_providers {
+    databricks = {
+      source  = "databricks/databricks"
+      version = "~> 1.0"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0"
+    }
+  }
+}
+
+# Configure Azure provider
+provider "azurerm" {
+  features {}
+}
+
+# Configure Databricks provider (Azure)
+provider "databricks" {
+  host = azurerm_databricks_workspace.this.workspace_url
+}
+```
+
+### Workspace Resources
+```hcl
+# main.tf
+
+# Create Azure Databricks workspace
+resource "azurerm_databricks_workspace" "this" {
+  name                = "dbw-${var.project}-${var.environment}"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  sku                 = var.sku  # "standard" or "premium"
+
+  custom_parameters {
+    no_public_ip = true
+    virtual_network_id = var.vnet_id
+    public_subnet_name = var.public_subnet_name
+    private_subnet_name = var.private_subnet_name
+  }
+
+  tags = var.tags
+}
+
+# Unity Catalog metastore assignment
+resource "databricks_metastore_assignment" "this" {
+  metastore_id = var.metastore_id
+  workspace_id = azurerm_databricks_workspace.this.workspace_id
+}
+```
+
+### Unity Catalog Resources
+```hcl
+# unity_catalog.tf
+
+# Create catalog
+resource "databricks_catalog" "this" {
+  name    = "${var.project}_${var.environment}"
+  comment = "Catalog for ${var.project} ${var.environment}"
+
+  properties = {
+    environment = var.environment
+    project     = var.project
+  }
+}
+
+# Create schemas
+resource "databricks_schema" "bronze" {
+  catalog_name = databricks_catalog.this.name
+  name         = "bronze"
+  comment      = "Raw data landing zone"
+}
+
+resource "databricks_schema" "silver" {
+  catalog_name = databricks_catalog.this.name
+  name         = "silver"
+  comment      = "Cleaned and transformed data"
+}
+
+resource "databricks_schema" "gold" {
+  catalog_name = databricks_catalog.this.name
+  name         = "gold"
+  comment      = "Business-ready data"
+}
+
+# Create external location
+resource "databricks_external_location" "landing" {
+  name            = "landing_${var.environment}"
+  url             = "abfss://landing@${var.storage_account}.dfs.core.windows.net/"
+  credential_name = databricks_storage_credential.this.name
+  comment         = "Landing zone for raw files"
+}
+```
+
+### Job Resources
+```hcl
+# jobs.tf
+
+resource "databricks_job" "etl" {
+  name = "[${var.environment}] ${var.source_name} ETL"
+
+  schedule {
+    quartz_cron_expression = var.schedule_cron
+    timezone_id            = "UTC"
+  }
+
+  task {
+    task_key = "ingest"
+
+    notebook_task {
+      notebook_path = "/Repos/${var.environment}/project/notebooks/ingest"
+      base_parameters = {
+        environment = var.environment
+        source      = var.source_name
+      }
+    }
+
+    new_cluster {
+      spark_version = var.spark_version
+      num_workers   = var.cluster_workers
+
+      node_type_id = var.node_type
+
+      spark_conf = {
+        "spark.databricks.delta.optimizeWrite.enabled" = "true"
+      }
+    }
+  }
+
+  task {
+    task_key = "transform"
+    depends_on {
+      task_key = "ingest"
+    }
+
+    notebook_task {
+      notebook_path = "/Repos/${var.environment}/project/notebooks/transform"
+    }
+  }
+
+  email_notifications {
+    on_failure = var.alert_emails
+  }
+}
+```
+
+### DLT Pipeline Resource
+```hcl
+# dlt.tf
+
+resource "databricks_pipeline" "dlt" {
+  name    = "[${var.environment}] ${var.source_name} DLT"
+  target  = "${var.environment}_${var.source_name}"
+  edition = "ADVANCED"
+  channel = "CURRENT"
+
+  cluster {
+    label       = "default"
+    num_workers = var.dlt_workers
+
+    custom_tags = {
+      environment = var.environment
+    }
+  }
+
+  library {
+    notebook {
+      path = "/Repos/${var.environment}/project/notebooks/dlt_pipeline"
+    }
+  }
+
+  configuration = {
+    "source_path" = var.source_path
+    "environment" = var.environment
+  }
+
+  continuous = false
+  development = var.environment == "dev"
+}
+```
+
+### Terraform Commands
+```bash
+# Initialize terraform
+terraform init
+
+# Plan changes
+terraform plan \
+  -var="environment=dev" \
+  -var="project=salesforce" \
+  -out=tfplan
+
+# Apply changes
+terraform apply tfplan
+
+# Apply with variables file
+terraform apply \
+  -var-file="environments/dev.tfvars"
+
+# Destroy resources
+terraform destroy \
+  -var-file="environments/dev.tfvars"
+
+# Import existing resource
+terraform import \
+  databricks_job.etl \
+  "12345"  # job_id
+```
+
+### Environment Variables Files
+```hcl
+# environments/dev.tfvars
+environment        = "dev"
+project            = "salesforce"
+location           = "westeurope"
+sku                = "premium"
+spark_version      = "14.3.x-scala2.12"
+cluster_workers    = 2
+node_type          = "Standard_DS3_v2"
+schedule_cron      = "0 0 2 * * ?"
+alert_emails       = ["dev-team@company.com"]
+
+# environments/prod.tfvars
+environment        = "prod"
+project            = "salesforce"
+location           = "westeurope"
+sku                = "premium"
+spark_version      = "14.3.x-scala2.12"
+cluster_workers    = 8
+node_type          = "Standard_DS4_v2"
+schedule_cron      = "0 0 1 * * ?"
+alert_emails       = ["data-ops@company.com"]
+```
+
+### Azure CLI for Databricks
+```bash
+# Get Databricks workspace info
+az databricks workspace show \
+  --name "dbw-project-dev" \
+  --resource-group "rg-databricks-dev"
+
+# List workspaces
+az databricks workspace list \
+  --resource-group "rg-databricks" \
+  | jq '.[] | {name: .name, url: .workspaceUrl}'
+
+# Create workspace
+az databricks workspace create \
+  --name "dbw-project-dev" \
+  --resource-group "rg-databricks-dev" \
+  --location "westeurope" \
+  --sku premium
+
+# Delete workspace
+az databricks workspace delete \
+  --name "dbw-project-dev" \
+  --resource-group "rg-databricks-dev"
+```
+
 ## Best Practices
 
-- Use Databricks Asset Bundles for IaC
+- Use Terraform for infrastructure (workspaces, catalogs, schemas)
+- Use Databricks Asset Bundles for jobs and pipelines
 - Parameterize environment-specific values
 - Use service principals for production
 - Version control all configurations
 - Test in dev before promoting
 - Use Git integration for notebooks
+- Store Terraform state in remote backend (Azure Storage)
 
 ## Anti-Patterns
 
@@ -447,3 +724,4 @@ if __name__ == "__main__":
 - Don't skip validation
 - Don't use personal tokens in CI/CD
 - Don't deploy without testing
+- Don't store Terraform state locally in CI/CD

@@ -10,6 +10,39 @@ AI-powered data platform development system with specialized agents and skills f
 - **Secondary**: Databricks
 - **Shared**: Medallion architecture, SQL optimization, ETL patterns
 
+## Available CLI Tools
+
+The following CLI tools are available for agents to use:
+
+| Tool | Purpose | Platform |
+|------|---------|----------|
+| `az` | Azure CLI for Fabric/Azure resource management | Fabric, Azure |
+| `azcopy` | High-performance data transfer to/from Azure | Fabric, Azure |
+| `jq` | JSON processing for API responses | All |
+| `terraform` | Infrastructure as Code for Azure/Databricks | Both |
+| `gh` | GitHub CLI for PR/issue management | Both |
+| `databricks` | Databricks CLI for workspace operations | Databricks |
+
+### Usage Examples
+
+```bash
+# Azure CLI - Fabric REST API
+az rest --method GET --url "https://api.fabric.microsoft.com/v1/workspaces" | jq '.value[]'
+
+# azcopy - Transfer to OneLake
+azcopy copy "./data/*" "https://onelake.dfs.fabric.microsoft.com/workspace/lakehouse.Lakehouse/Files/" --recursive
+
+# Terraform - Deploy infrastructure
+terraform plan -var-file="environments/dev.tfvars"
+terraform apply -var-file="environments/dev.tfvars"
+
+# GitHub CLI - Create PR
+gh pr create --title "feat: add new source" --body "Description"
+
+# Databricks CLI
+databricks bundle deploy --target dev
+```
+
 ## Quick Start
 
 ```bash

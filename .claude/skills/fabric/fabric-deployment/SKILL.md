@@ -1,17 +1,26 @@
 ---
 name: fabric-deployment
 description: Deploying artifacts to Microsoft Fabric workspaces.
+tools: az, azcopy, jq
 ---
 
 # Fabric Deployment Skill
+
+## Available CLI Tools
+
+| Tool | Purpose |
+|------|---------|
+| `az` | Azure CLI for Fabric REST API calls and authentication |
+| `azcopy` | High-performance data transfer to OneLake |
+| `jq` | JSON processing for API responses |
 
 ## Deployment Overview
 
 Fabric supports multiple deployment approaches:
 - Git integration (recommended)
 - Deployment pipelines
-- REST API
-- Power BI/Fabric CLI
+- Azure CLI with REST API (`az rest`)
+- azcopy for data transfer
 
 ## Git Integration
 
@@ -113,7 +122,125 @@ def deploy_to_stage(pipeline_id, source_stage, target_stage, token):
     return response.json()
 ```
 
-## REST API Deployment
+## Azure CLI Deployment (az rest)
+
+### Authentication
+```bash
+# Login to Azure (interactive)
+az login
+
+# Or with service principal
+az login --service-principal \
+  -u $AZURE_CLIENT_ID \
+  -p $AZURE_CLIENT_SECRET \
+  --tenant $AZURE_TENANT_ID
+
+# Verify login
+az account show | jq '{name: .name, id: .id}'
+```
+
+### List Workspaces
+```bash
+# Get all Fabric workspaces
+az rest --method GET \
+  --url "https://api.fabric.microsoft.com/v1/workspaces" \
+  --headers "Content-Type=application/json" \
+  | jq '.value[] | {id: .id, name: .displayName, type: .type}'
+
+# Get specific workspace by name
+WORKSPACE_NAME="Sales_Dev"
+az rest --method GET \
+  --url "https://api.fabric.microsoft.com/v1/workspaces" \
+  | jq --arg name "$WORKSPACE_NAME" '.value[] | select(.displayName == $name)'
+```
+
+### Deploy Items
+```bash
+# Get workspace ID
+WORKSPACE_ID=$(az rest --method GET \
+  --url "https://api.fabric.microsoft.com/v1/workspaces" \
+  | jq -r --arg name "$WORKSPACE_NAME" '.value[] | select(.displayName == $name) | .id')
+
+# List items in workspace
+az rest --method GET \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WORKSPACE_ID/items" \
+  | jq '.value[] | {name: .displayName, type: .type, id: .id}'
+
+# Create new item (pipeline, notebook, etc.)
+az rest --method POST \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WORKSPACE_ID/items" \
+  --headers "Content-Type=application/json" \
+  --body @item-definition.json
+
+# Get item details
+ITEM_ID="your-item-id"
+az rest --method GET \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WORKSPACE_ID/items/$ITEM_ID" \
+  | jq '.'
+```
+
+### Trigger Pipeline
+```bash
+# Run a pipeline
+PIPELINE_ID="your-pipeline-id"
+az rest --method POST \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WORKSPACE_ID/items/$PIPELINE_ID/jobs/instances?jobType=Pipeline" \
+  --headers "Content-Type=application/json"
+
+# Check pipeline run status
+JOB_ID="job-instance-id"
+az rest --method GET \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WORKSPACE_ID/items/$PIPELINE_ID/jobs/instances/$JOB_ID" \
+  | jq '{status: .status, startTime: .startTimeUtc, endTime: .endTimeUtc}'
+```
+
+## Data Transfer with azcopy
+
+### OneLake Operations
+```bash
+# Copy local files to OneLake
+azcopy copy "./data/*" \
+  "https://onelake.dfs.fabric.microsoft.com/$WORKSPACE_NAME/$LAKEHOUSE_NAME.Lakehouse/Files/landing/" \
+  --recursive
+
+# Copy from Azure Blob to OneLake
+azcopy copy \
+  "https://sourceaccount.blob.core.windows.net/container/path/*" \
+  "https://onelake.dfs.fabric.microsoft.com/$WORKSPACE_NAME/$LAKEHOUSE_NAME.Lakehouse/Files/raw/" \
+  --recursive
+
+# Sync directories (only copy changed files)
+azcopy sync "./local/data" \
+  "https://onelake.dfs.fabric.microsoft.com/$WORKSPACE_NAME/$LAKEHOUSE_NAME.Lakehouse/Files/landing/" \
+  --recursive
+
+# List files in OneLake
+azcopy list "https://onelake.dfs.fabric.microsoft.com/$WORKSPACE_NAME/$LAKEHOUSE_NAME.Lakehouse/Files/"
+
+# Delete files
+azcopy remove \
+  "https://onelake.dfs.fabric.microsoft.com/$WORKSPACE_NAME/$LAKEHOUSE_NAME.Lakehouse/Files/temp/*" \
+  --recursive
+```
+
+### Authentication for azcopy
+```bash
+# Option 1: Azure CLI auth (recommended)
+azcopy login
+
+# Option 2: Service Principal
+azcopy login --service-principal \
+  --application-id $AZURE_CLIENT_ID \
+  --tenant-id $AZURE_TENANT_ID
+# Then provide client secret when prompted
+
+# Option 3: SAS token (append to URL)
+azcopy copy "./data/*" \
+  "https://onelake.dfs.fabric.microsoft.com/workspace/lakehouse.Lakehouse/Files/?$SAS_TOKEN" \
+  --recursive
+```
+
+## REST API Deployment (Python alternative)
 
 ### Authentication
 ```python
