@@ -1,0 +1,4 @@
+# Ignore all project subrepos
+# Clone your projects inside this folder
+*
+!.gitignore

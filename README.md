@@ -1,179 +1,177 @@
-# Data Platform AI Agents
+# Data AI Agents
 
-AI-powered data platform development system that automates the journey from user story to production-ready code. Built for **Microsoft Fabric** and **Databricks**.
+An agentic AI team for building enterprise data platforms.
 
-## Features
+## What Is This?
 
-- **8 Specialized Agents** - Requirements gathering, architecture design, implementation, testing, deployment, documentation, and continuous learning
-- **20 Reusable Skills** - Platform-specific patterns for Fabric and Databricks, plus shared ETL patterns
-- **Automated Workflow** - Takes a user story through requirements → design → implementation → testing → PR
-- **Self-Improving System** - Learning agent captures insights and improves agents/skills over time
+This repository provides:
+- **AI agent configuration** for Claude Code and GitHub Copilot
+- **Shared documentation** on data platform principles and patterns
+- **Platform-specific guidance** for Fabric, Databricks, Snowflake, and cloud providers
+- **Terraform modules** for infrastructure as code
 
-## Quick Install
+## Quick Start
 
-### Option 1: With npx (recommended)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/jouni-cloud2/data_ai_agents/main/install.sh | bash
-```
-
-### Option 2: Without Node.js
+### 1. Clone this repository
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jouni-cloud2/data_ai_agents/main/install-no-npx.sh | bash
+git clone https://github.com/your-org/data_ai_agents.git
+cd data_ai_agents
 ```
 
-### Option 3: Manual with degit
+### 2. Set up your project
 
 ```bash
-npx degit OWNER/REPO/.claude .claude --force
-curl -fsSL https://raw.githubusercontent.com/OWNER/REPO/main/CLAUDE.md -o CLAUDE.md
-mkdir -p pipelines notebooks sql tests docs config
+# Create projects folder (gitignored)
+mkdir -p projects
+
+# Clone your project inside
+cd projects
+git clone https://github.com/your-org/your-project.git
 ```
 
-> **Note:** Replace `OWNER/REPO` with the actual GitHub repository path after forking/cloning.
+### 3. Use Claude Code
 
-## Usage
+Open the repo in VS Code with Claude Code extension and use the configured agents.
 
-After installation, use the main workflow command in Claude Code:
-
-```bash
-/develop-story "Add Salesforce as a data source"
-```
-
-This will:
-1. **Gather Requirements** - Ask clarifying questions about platform, source, fields, etc.
-2. **Design Architecture** - Create medallion architecture (Bronze/Silver/Gold) design
-3. **Implement** - Generate pipelines, notebooks, SQL, and tests
-4. **Test & Deploy** - Run quality checks and deploy to dev environment
-5. **Create PR** - Generate documentation and create pull request
-6. **Learn** (optional) - Update agents/skills with lessons learned
-
-## What's Installed
+## Repository Structure
 
 ```
-.claude/
-├── agents/                    # 8 Specialized AI agents
-│   ├── requirements-analyst.md
-│   ├── data-architect.md
-│   ├── data-engineer-fabric.md
-│   ├── data-engineer-databricks.md
-│   ├── qa-engineer.md
-│   ├── devops-engineer.md
-│   ├── documentation-engineer.md
-│   └── learning-agent.md
+data_ai_agents/
+├── .claude/                 # Claude Code configuration
+│   ├── commands/            # Slash commands (/sdd, /document)
+│   ├── skills/              # Agent skills and knowledge
+│   └── workflows/           # Multi-step workflows
 │
-├── commands/                  # Workflow commands
-│   └── develop-story.md
+├── docs/                    # Shared documentation
+│   ├── principles/          # Platform-agnostic principles
+│   ├── patterns/            # Reusable implementation patterns
+│   ├── platforms/           # Platform-specific guidance
+│   │   ├── fabric/          # Microsoft Fabric (complete)
+│   │   ├── databricks/      # Databricks (planned)
+│   │   ├── snowflake/       # Snowflake (planned)
+│   │   └── ...              # Azure, AWS, GCP
+│   ├── templates/           # Documentation templates
+│   └── mcp/                 # MCP server configuration
 │
-└── skills/                    # 20 Reusable skills
-    ├── shared/               # Platform-agnostic (7 skills)
-    │   ├── requirements-gathering/
-    │   ├── data-modeling-standards/
-    │   ├── etl-patterns/
-    │   ├── sql-optimization/
-    │   ├── data-quality-validation/
-    │   ├── documentation-standards/
-    │   └── continuous-improvement/
-    │
-    ├── fabric/               # Microsoft Fabric (6 skills)
-    │   ├── fabric-architecture/
-    │   ├── fabric-pipelines/
-    │   ├── fabric-notebooks/
-    │   ├── fabric-deployment/
-    │   ├── fabric-testing/
-    │   └── onelake-patterns/
-    │
-    └── databricks/           # Databricks (7 skills)
-        ├── databricks-architecture/
-        ├── databricks-workflows/
-        ├── databricks-notebooks/
-        ├── databricks-deployment/
-        ├── databricks-testing/
-        ├── unity-catalog/
-        └── delta-live-tables/
-
-CLAUDE.md                      # Project knowledge base (auto-updated)
+├── terraform/               # Terraform modules
+│   └── modules/
+│       ├── azure/           # Azure resources
+│       ├── databricks/      # Databricks workspaces
+│       └── ...              # Other platforms
+│
+├── projects/                # Your project subrepos (gitignored)
+│
+├── CLAUDE.md               # Claude Code entry point
+└── README.md               # This file (human documentation)
 ```
+
+## For Humans vs AI
+
+| Audience | Start Here |
+|----------|------------|
+| **Humans** | This README, [docs/README.md](docs/README.md) |
+| **Claude Code** | [CLAUDE.md](CLAUDE.md) |
+| **GitHub Copilot** | `.github/copilot-instructions.md` |
 
 ## Supported Platforms
 
-### Microsoft Fabric
-- OneLake storage with folders (not schemas)
-- Fabric pipelines (Copy Activity, Dataflow Gen2, Notebooks)
-- Lakehouse architecture
-- Domain-based workspace organization
+| Platform | Documentation | Terraform |
+|----------|---------------|-----------|
+| Microsoft Fabric | [Complete](docs/platforms/fabric/) | [Planned](terraform/modules/fabric/) |
+| Databricks | [Planned](docs/platforms/databricks/) | [Planned](terraform/modules/databricks/) |
+| Snowflake | [Planned](docs/platforms/snowflake/) | [Planned](terraform/modules/snowflake/) |
+| Azure | [Planned](docs/platforms/azure/) | [Planned](terraform/modules/azure/) |
+| AWS | [Planned](docs/platforms/aws/) | [Planned](terraform/modules/aws/) |
+| GCP | [Planned](docs/platforms/gcp/) | [Planned](terraform/modules/gcp/) |
 
-### Databricks
-- Unity Catalog governance (catalog.schema.table)
-- Workflows and Delta Live Tables (DLT)
-- Serverless compute
-- Expectations for data quality
+## Core Principles
 
-## Agents Overview
+All data platforms built with these agents follow:
 
-| Agent | Role |
-|-------|------|
-| **Requirements Analyst** | Gathers requirements through targeted questions |
-| **Data Architect** | Designs medallion architecture, routes to platform skills |
-| **Data Engineer (Fabric)** | Implements Fabric pipelines, notebooks, OneLake |
-| **Data Engineer (Databricks)** | Implements workflows, DLT, Unity Catalog |
-| **QA Engineer** | Tests implementations, validates data quality |
-| **DevOps Engineer** | Manages git workflow, deployments, PRs |
-| **Documentation Engineer** | Generates data dictionaries, runbooks, lineage |
-| **Learning Agent** | Analyzes work and improves agents/skills |
+| Principle | Description |
+|-----------|-------------|
+| [Medallion Architecture](docs/principles/medallion-architecture.md) | Bronze/Silver/Gold data layers |
+| [Data Governance](docs/principles/data-governance.md) | Classification, ownership, stewardship |
+| [Data Quality](docs/principles/data-quality.md) | Validation and monitoring |
+| [Security & Privacy](docs/principles/security-privacy.md) | PII handling, access control |
+| [Well-Architected](docs/principles/well-architected.md) | AWS/Azure best practices |
+| [Environment Separation](docs/principles/environment-separation.md) | Dev/Test/Prod compliance |
+| [MDM Patterns](docs/principles/mdm-patterns.md) | Master Data Management |
 
-## Architecture
+## Using with Claude Code
 
-The system follows the **medallion architecture** pattern:
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `/sdd` | Spec-Driven Development workflow |
+| `/document` | Documentation maintenance |
+| `/improve-ai` | Improve agent configuration |
+
+### MCP Servers
+
+| Server | Purpose |
+|--------|---------|
+| `microsoft-docs` | Official Microsoft/Azure documentation |
+| `context7` | Library and SDK documentation |
+
+### Example Workflow
 
 ```
-Source → Bronze (Raw) → Silver (Cleaned) → Gold (Business) → Consumers
+You: /sdd Add customer dimension table
+
+Claude: [Creates spec, implements table, documents]
 ```
 
-- **Bronze**: Raw data as-is with metadata (_ingested_at, _source_file)
-- **Silver**: Cleaned, typed, PII masked, SCD Type 2
-- **Gold**: Star schema, business KPIs, optimized for analytics
+## Working with Projects
 
-## Customization
+### Parent/Subrepo Model
 
-### Adding New Skills
-
-Create a new skill in `.claude/skills/[category]/[skill-name]/SKILL.md`:
-
-```markdown
----
-name: my-new-skill
-description: What this skill provides
----
-
-# My New Skill
-
-## Overview
-[Description]
-
-## Patterns
-[Code examples and best practices]
+```
+data_ai_agents/           # Parent repo (agents + docs)
+└── projects/             # Your work (gitignored)
+    ├── client-a-fabric/  # Subrepo: Fabric project
+    └── client-b-spark/   # Subrepo: Databricks project
 ```
 
-### Updating CLAUDE.md
+### Project Documentation
 
-The `CLAUDE.md` file serves as the project's knowledge base. It's automatically updated by the Learning Agent after each PR, but you can also manually add:
-- Project-specific patterns
-- Team conventions
-- Lessons learned
+Projects use templates from [docs/templates/](docs/templates/):
+- Data catalog entries
+- Source integration docs
+- Runbooks
+- Architecture Decision Records
 
 ## Contributing
 
-1. Fork this repository
-2. Make your changes
-3. Test the installation scripts
-4. Submit a pull request
+### Adding a New Platform
+
+1. Create `docs/platforms/{platform}/README.md`
+2. Add platform-specific patterns
+3. Create Terraform modules if applicable
+4. Update platform table in this README
+
+### Improving Agents
+
+Use `/improve-ai` command or submit PRs to `.claude/` folder.
+
+### Documentation
+
+Follow the structure in [docs/DOCUMENTATION-PLAN.md](docs/DOCUMENTATION-PLAN.md).
+
+## References
+
+- [Claude Code Documentation](https://docs.anthropic.com/claude-code)
+- [Terraform Registry](https://registry.terraform.io/)
+- [Microsoft Fabric](https://learn.microsoft.com/fabric/)
+- [Databricks](https://docs.databricks.com/)
+- [Snowflake](https://docs.snowflake.com/)
 
 ## License
 
-MIT
+[Add your license here]
 
 ---
 
-Built with Claude Code for data platform teams.
+*Last Updated: 2026-02-09*
