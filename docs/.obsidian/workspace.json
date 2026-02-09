@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "75bb5f86b47ad347",
+        "id": "6f2d58a000408078",
         "type": "tabs",
         "children": [
           {
-            "id": "7426892db97a8892",
+            "id": "c13e55a558da1f9f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "mcp/README.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "mcp/README.md",
+                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,7 +113,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "mcp/README.md",
+                "file": "README.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -142,7 +142,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "mcp/README.md",
+                "file": "README.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -170,12 +170,13 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "7426892db97a8892",
+  "active": "c13e55a558da1f9f",
   "lastOpenFiles": [
+    "mcp/README.md",
     "README.md",
+    "DOCUMENTATION-PLAN.md",
     "Kanban-1770648937083.md",
     "Untitled.base",
-    "mcp/README.md",
     "templates/adr.md",
     "templates/runbook.md",
     "templates/source-integration.md",
@@ -198,7 +199,6 @@
     "patterns/api-ingestion.md",
     "patterns/README.md",
     "principles/environment-separation.md",
-    "principles/mdm-patterns.md",
     "mcp",
     "templates",
     "platforms/snowflake",

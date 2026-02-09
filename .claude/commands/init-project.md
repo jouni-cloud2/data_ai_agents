@@ -226,7 +226,127 @@ grep -q "projects/" .gitignore || echo "projects/" >> .gitignore
 
 ---
 
-## Phase 6: Platform-Specific Setup
+## Phase 6: Platform-Specific Tool Installation
+
+**Reference:** See [CLI Tools Reference](../../docs/cli-tools.md) for complete installation instructions.
+
+### 6.1 Check Platform-Specific Tools
+
+Based on detected platform, check for required tools:
+
+```bash
+check_platform_tools() {
+  case $PLATFORM in
+    fabric)
+      echo "Checking Microsoft Fabric tools..."
+      check_tool "Azure CLI" "az"
+      check_tool "Python 3" "python3"
+      check_tool "Terraform" "terraform"
+      check_tool "AzCopy" "azcopy"
+      ;;
+    databricks)
+      echo "Checking Databricks tools..."
+      check_tool "Databricks CLI" "databricks"
+      check_tool "Python 3" "python3"
+      check_tool "Terraform" "terraform"
+      ;;
+    snowflake)
+      echo "Checking Snowflake tools..."
+      check_tool "SnowSQL" "snowsql"
+      check_tool "Python 3" "python3"
+      check_tool "Terraform" "terraform"
+      ;;
+    aws)
+      echo "Checking AWS tools..."
+      check_tool "AWS CLI" "aws"
+      check_tool "Terraform" "terraform"
+      check_tool "Python 3" "python3"
+      ;;
+    gcp)
+      echo "Checking GCP tools..."
+      check_tool "gcloud CLI" "gcloud"
+      check_tool "Terraform" "terraform"
+      check_tool "Python 3" "python3"
+      ;;
+  esac
+}
+```
+
+### 6.2 Present Tool Status
+
+```markdown
+## Platform-Specific Tools
+
+**Platform:** {detected_platform}
+
+### Required Tools
+
+| Tool | Status | Version | Priority |
+|------|--------|---------|----------|
+| [tool 1] | ✅/❌ | [version] | Critical/High/Medium |
+| [tool 2] | ✅/❌ | [version] | Critical/High/Medium |
+
+### Missing Critical Tools
+
+[List any missing critical tools]
+
+Would you like to install missing tools? (yes/no/select)
+```
+
+### 6.3 Install Platform Tools
+
+**Microsoft Fabric:**
+```bash
+# macOS
+brew install azure-cli azcopy ruff
+
+# Linux
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+```
+
+**Databricks:**
+```bash
+# macOS
+brew tap databricks/tap
+brew install databricks
+
+# Linux
+curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+```
+
+**Snowflake:**
+```bash
+# macOS
+brew install snowflake-cli
+
+# Linux
+pip3 install snowflake-cli-labs
+```
+
+**AWS:**
+```bash
+# macOS
+brew install awscli
+
+# Linux
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip && sudo ./aws/install
+```
+
+**GCP:**
+```bash
+# macOS
+brew install google-cloud-sdk
+
+# Linux
+curl https://sdk.cloud.google.com | bash
+```
+
+See [CLI Tools Reference](../../docs/cli-tools.md) for detailed instructions.
+
+---
+
+## Phase 7: Platform-Specific Configuration
 
 ### For Fabric Projects
 
@@ -238,10 +358,12 @@ find . -name "*.Workspace" -type d
 ls .env* config/ 2>/dev/null
 ```
 
-Suggest:
-- Workspace naming conventions
-- OneLake connection setup
-- Service principal configuration
+**Setup checklist:**
+- [ ] Azure CLI authenticated (`az login`)
+- [ ] Subscription selected
+- [ ] Workspace naming conventions
+- [ ] OneLake connection setup
+- [ ] Service principal configuration (if needed)
 
 ### For Databricks Projects
 
@@ -253,10 +375,11 @@ ls databricks.yml clusters/ 2>/dev/null
 grep -r "unity_catalog" . 2>/dev/null | head -5
 ```
 
-Suggest:
-- Workspace connection setup
-- Unity Catalog configuration
-- Cluster policies
+**Setup checklist:**
+- [ ] Databricks CLI configured (`databricks configure`)
+- [ ] Workspace connection setup
+- [ ] Unity Catalog configuration
+- [ ] Cluster policies reviewed
 
 ### For Terraform Projects
 
@@ -268,14 +391,15 @@ ls terraform/
 grep -l "backend" terraform/*.tf 2>/dev/null
 ```
 
-Suggest:
-- Backend configuration
-- Variable files setup
-- Module structure
+**Setup checklist:**
+- [ ] Backend configuration
+- [ ] Variable files setup (terraform.tfvars)
+- [ ] Module structure validated
+- [ ] State management configured
 
 ---
 
-## Phase 7: Present Summary
+## Phase 8: Present Summary
 
 ```markdown
 ## Project Setup Complete
@@ -283,6 +407,14 @@ Suggest:
 **Project:** {name}
 **Location:** projects/{name}/
 **Platform:** {platform}
+
+### Platform Tools Status
+
+| Tool | Status | Version |
+|------|--------|---------|
+| [tool 1] | ✅ | [version] |
+| [tool 2] | ✅ | [version] |
+| [tool 3] | ⚠️ Recommended | - |
 
 ### Created Structure
 

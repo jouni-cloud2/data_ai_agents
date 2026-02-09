@@ -30,26 +30,42 @@ Then use `/init-project <url>` to set up your first project.
 
 ## Required CLI Tools
 
-The `/init-data-ai` command checks for these tools and helps install them:
+The AI agents require various CLI tools depending on your platform. See [CLI Tools Reference](docs/cli-tools.md) for complete documentation.
 
-### Core Tools
+### Core Tools (Always Required)
 
-| Tool | Purpose |
-|------|---------|
-| `git` | Version control |
-| `node` | MCP server runtime |
-| `npm` | Node package manager |
-| `jq` | JSON processing |
+| Tool | Purpose | Priority |
+|------|---------|----------|
+| `git` | Version control | Critical |
+| `node` | MCP server runtime | Critical |
+| `npm` | Node package manager | Critical |
+| `jq` | JSON processing | Critical |
+
+### Generic Platform Tools (Recommended)
+
+| Tool | Purpose | When Needed |
+|------|---------|-------------|
+| `python3` | Python runtime | Most platforms |
+| `az` | Azure CLI | Azure/Fabric projects |
+| `terraform` | Infrastructure as Code | IaC projects |
+| `docker` | Containerization | All platforms |
+| `yq` | YAML processing | YAML-heavy projects |
 
 ### Platform-Specific Tools
 
-| Tool | When Required |
-|------|---------------|
-| `az` | Azure/Fabric projects |
-| `terraform` | Infrastructure as Code |
-| `databricks` | Databricks projects |
-| `docker` | Containerized workflows |
-| `yq` | YAML processing |
+| Platform | Required Tools | Optional Tools |
+|----------|----------------|----------------|
+| **Fabric** | `az`, `python3` | `azcopy`, `ruff`, `terraform` |
+| **Databricks** | `databricks`, `python3` | `terraform` |
+| **Snowflake** | `snowsql`, `python3` | `terraform` |
+| **AWS** | `aws`, `terraform` | `python3` |
+| **GCP** | `gcloud`, `terraform` | `python3` |
+
+**Installation:**
+- `/init-data-ai` installs core and generic tools
+- `/init-project` installs platform-specific tools based on detection
+
+See [CLI Tools Reference](docs/cli-tools.md) for detailed installation instructions.
 
 ## Repository Structure
 

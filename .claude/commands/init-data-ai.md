@@ -62,44 +62,54 @@ Proceeding with setup...
 
 ## Phase 2: Install Prerequisites
 
-### 2.1 Required Tools
+**Reference:** See [CLI Tools Reference](../../docs/cli-tools.md) for complete tool list and installation instructions.
 
-| Tool | Purpose | Check Command |
-|------|---------|---------------|
-| `git` | Version control | `git --version` |
-| `node` | MCP servers runtime | `node --version` |
-| `npm` | Package management | `npm --version` |
-| `jq` | JSON processing | `jq --version` |
+### 2.1 Core Tools (Always Required)
 
-### 2.2 Platform Tools
+Check and install these tools first:
 
-| Tool | Purpose | When Needed |
-|------|---------|-------------|
-| `az` | Azure CLI | Azure/Fabric projects |
-| `terraform` | Infrastructure as Code | Terraform projects |
-| `databricks` | Databricks CLI | Databricks projects |
+| Tool | Purpose | Check Command | Priority |
+|------|---------|---------------|----------|
+| `git` | Version control | `git --version` | Critical |
+| `node` | MCP servers runtime | `node --version` | Critical |
+| `npm` | Package management | `npm --version` | Critical |
+| `jq` | JSON processing | `jq --version` | Critical |
+
+### 2.2 Generic Platform Tools (Recommended)
+
+These tools are useful across multiple platforms:
+
+| Tool | Purpose | Check Command | Priority |
+|------|---------|---------------|----------|
+| `python3` | Python runtime | `python3 --version` | High |
+| `az` | Azure CLI | `az --version` | High (Azure/Fabric) |
+| `terraform` | Infrastructure as Code | `terraform --version` | Medium |
+| `docker` | Containerization | `docker --version` | Medium |
+| `yq` | YAML processing | `yq --version` | Medium |
+
+**Note:** Platform-specific tools (databricks, snowsql, aws, gcloud) will be checked and installed by `/init-project` based on platform detection.
 
 ### 2.3 Installation (macOS with Homebrew)
 
 ```bash
-# Core tools
+# Core tools (Critical)
 brew install git node jq
 
-# Azure tools
-brew install azure-cli
+# Generic platform tools (Recommended)
+brew install python3 azure-cli docker yq
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform
-
-# Databricks (if needed)
-brew install databricks
 ```
 
 ### 2.4 Installation (Linux with apt)
 
 ```bash
-# Core tools
+# Core tools (Critical)
 sudo apt update
 sudo apt install -y git nodejs npm jq
+
+# Generic platform tools (Recommended)
+sudo apt install -y python3 python3-pip docker.io yq
 
 # Azure CLI
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -109,6 +119,8 @@ wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/sha
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install terraform
 ```
+
+**For detailed installation instructions for specific platforms (Databricks, Snowflake, AWS, GCP), see [CLI Tools Reference](../../docs/cli-tools.md).**
 
 ---
 
