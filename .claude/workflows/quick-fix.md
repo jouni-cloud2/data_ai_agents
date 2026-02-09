@@ -2,6 +2,12 @@
 
 Lightweight workflow for trivial and simple changes. Minimal ceremony, direct implementation.
 
+## IMPORTANT: Agent Interaction
+
+**READ THIS FIRST**: See [../interaction-guidelines.md](../interaction-guidelines.md) for how to ask questions properly.
+
+**Key rule**: Always present options as clickable choices, never ask users to type responses when options can be provided.
+
 ## When to Use
 
 - Typos, single-line fixes
@@ -163,15 +169,16 @@ Proceeding to approval...
 
 ---
 
-Ready to commit and create PR?
+**Ready to commit and create PR?**
 
-Options:
-1. "approved" - Commit and create PR
-2. "show diff" - View the changes
-3. "make changes" - Request modifications
+- **Approve** - Commit and create PR
+- **Show Diff** - View the changes first
+- **Request Changes** - Make modifications
+
+What would you like to do?
 ```
 
-### If "show diff"
+### If "Show Diff"
 
 ```bash
 git diff --staged
@@ -179,13 +186,13 @@ git diff --staged
 
 Then ask again for approval.
 
-### If "make changes"
+### If "Request Changes"
 
 - Collect requested modifications
 - Apply changes
 - Present for approval again
 
-### If "approved"
+### If "Approve"
 
 Proceed to commit.
 
@@ -222,12 +229,15 @@ Generated via SDD Quick Fix workflow"
 ```
 PR created: [PR URL]
 
-Options:
-1. "merge" - Merge to dev branch now
-2. "hold" - Keep PR open for review
+**What would you like to do?**
+
+- **Merge Now** - Merge to dev branch now
+- **Hold for Review** - Keep PR open for review
+
+Please select:
 ```
 
-### If "merge"
+### If "Merge Now"
 
 ```bash
 gh pr merge --squash
@@ -235,7 +245,7 @@ git checkout dev
 git pull
 ```
 
-### If "hold"
+### If "Hold for Review"
 
 ```
 PR ready for review: [PR URL]
@@ -305,7 +315,12 @@ Findings:
 
 Recommend switching to Full SDD workflow.
 
-Switch to Full SDD? (yes/no)
+**Switch to Full SDD?**
+
+- **Yes** - Start Full SDD workflow
+- **No** - Continue with current approach
+
+What would you like to do?
 ```
 
-If yes, transition to [Full SDD Workflow](./full-sdd.md) and create proper spec.
+If "Yes", transition to [Full SDD Workflow](./full-sdd.md) and create proper spec.

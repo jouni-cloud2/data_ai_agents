@@ -2,6 +2,12 @@
 
 Comprehensive workflow for medium and complex changes. Includes spec authoring, gated approvals, and documentation.
 
+## IMPORTANT: Agent Interaction
+
+**READ THIS FIRST**: See [../interaction-guidelines.md](../interaction-guidelines.md) for how to ask questions properly.
+
+**Key rule**: Always present options as clickable choices, never ask users to type responses when options can be provided.
+
 ## When to Use
 
 - New features or components
@@ -181,26 +187,27 @@ Present spec for approval:
 
 ---
 
-Approve this spec to proceed with implementation?
+**Approve this spec to proceed with implementation?**
 
-Options:
-1. "approved" - Proceed to implementation
-2. "show spec" - Display full spec
-3. "changes needed" - Request modifications
+- **Approve** - Proceed to implementation
+- **Show Spec** - Display full spec first
+- **Request Changes** - Provide feedback for modifications
+
+What would you like to do?
 ```
 
-### If "show spec"
+### If "Show Spec"
 
 Display the full spec.md content, then ask again.
 
-### If "changes needed"
+### If "Request Changes"
 
 - Collect feedback
 - Update spec
 - Re-commit spec changes
 - Present for approval again
 
-### If "approved"
+### If "Approve"
 
 Proceed to implementation.
 
@@ -401,27 +408,30 @@ Before presenting for approval:
 
 ---
 
-Options:
-1. "approved" - Proceed to documentation
-2. "show diff" - View all changes
-3. "show file [name]" - View specific file
-4. "changes needed" - Request modifications
+**What would you like to do?**
+
+- **Approve** - Proceed to documentation
+- **Show Diff** - View all changes
+- **Show File** - View specific file (specify which)
+- **Request Changes** - Request modifications
+
+Please select:
 ```
 
-### If "show diff"
+### If "Show Diff"
 
 ```bash
 git diff main...HEAD
 ```
 
-### If "changes needed"
+### If "Request Changes"
 
 - Collect feedback
 - Make modifications
 - Update implementation notes
 - Present for approval again
 
-### If "approved"
+### If "Approve"
 
 Proceed to documentation.
 
@@ -563,12 +573,15 @@ All gates passed:
 - [x] Gate #2: Spec Approved
 - [x] Gate #3: Implementation Approved
 
-Options:
-1. "merge" - Merge to dev branch now
-2. "hold" - Keep PR open for review
+**What would you like to do?**
+
+- **Merge Now** - Merge to dev branch now
+- **Hold for Review** - Keep PR open for review
+
+Please select:
 ```
 
-### If "merge"
+### If "Merge Now"
 
 ```bash
 gh pr merge --squash
@@ -585,7 +598,7 @@ git commit -m "spec: mark [spec-id] as implemented"
 git push
 ```
 
-### If "hold"
+### If "Hold for Review"
 
 ```
 PR ready for review: [PR URL]
@@ -660,10 +673,13 @@ This affects the original spec:
 - [Impact 1]
 - [Impact 2]
 
-Options:
-1. "update spec" - Modify spec and continue
-2. "split" - Create separate spec for new scope
-3. "continue" - Proceed with original scope only
+**How would you like to proceed?**
+
+- **Update Spec** - Modify spec and continue
+- **Split Scope** - Create separate spec for new scope
+- **Continue** - Proceed with original scope only
+
+What would you like to do?
 ```
 
-If updating spec, return to Gate #2 for re-approval.
+If "Update Spec", return to Gate #2 for re-approval.

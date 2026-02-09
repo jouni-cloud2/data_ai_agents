@@ -124,7 +124,12 @@ ls dbt_project.yml 2>/dev/null
 
 **Detected Platform:** [Fabric/Databricks/Unknown]
 
-Is this correct? (yes/no/specify platform)
+**Is this detection correct?**
+
+- **Yes** - Continue with detected platform
+- **No** - Specify the correct platform
+
+Please confirm:
 ```
 
 ---
@@ -290,7 +295,13 @@ check_platform_tools() {
 
 [List any missing critical tools]
 
-Would you like to install missing tools? (yes/no/select)
+**Would you like to install missing tools?**
+
+- **Install All** - Install all missing critical tools
+- **Select** - Choose specific tools to install
+- **Skip** - Continue without installing
+
+What would you like to do?
 ```
 
 ### 6.3 Install Platform Tools

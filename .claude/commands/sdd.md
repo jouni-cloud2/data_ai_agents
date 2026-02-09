@@ -25,6 +25,12 @@ When invoked, Claude acts as the **Spec Authoring Agent** and:
 4. **Suggests workflow** - Recommends Quick Fix or Full SDD based on complexity
 5. **Gate #1**: User selects workflow path
 
+## IMPORTANT: Agent Interaction
+
+**READ THIS FIRST**: See [interaction-guidelines.md](../interaction-guidelines.md) for how to ask questions properly.
+
+**Key rule**: Always present options as clickable choices, never ask users to type responses when options can be provided.
+
 ---
 
 ## Phase 0: Environment Detection
@@ -134,7 +140,12 @@ Use these lessons to inform implementation decisions.
 - [Count] pattern lessons
 - [Count] project lessons
 
-Is this correct? (yes/change)
+**Is this correct?**
+
+- **Yes** - Continue to complexity assessment
+- **Change** - Correct the environment detection
+
+Please confirm:
 ```
 
 ---
@@ -179,9 +190,12 @@ Analyze the request and categorize:
 
 ---
 
-Which workflow would you like to use?
-1. Quick Fix - Direct implementation with minimal ceremony
-2. Full SDD - Spec authoring, implementation, documentation
+**Which workflow would you like to use?**
+
+- **Quick Fix** - Direct implementation with minimal ceremony
+- **Full SDD** - Spec authoring, implementation, documentation
+
+Please select:
 ```
 
 ---
@@ -189,8 +203,8 @@ Which workflow would you like to use?
 ## Gate #1: Workflow Selection
 
 **Wait for user to select**:
-- "Quick Fix" or "1" → Proceed to [Quick Fix Workflow](../workflows/quick-fix.md)
-- "Full SDD" or "2" → Proceed to [Full SDD Workflow](../workflows/full-sdd.md)
+- "Quick Fix" → Proceed to [Quick Fix Workflow](../workflows/quick-fix.md)
+- "Full SDD" → Proceed to [Full SDD Workflow](../workflows/full-sdd.md)
 
 ---
 

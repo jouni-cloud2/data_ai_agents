@@ -22,6 +22,12 @@ A dialog-driven workflow for capturing learnings and improving AI team assets. T
 
 When invoked, Claude acts as the **AI Improvement Agent** and guides you through a structured dialog to capture and codify learnings.
 
+## IMPORTANT: Agent Interaction
+
+**READ THIS FIRST**: See [interaction-guidelines.md](../interaction-guidelines.md) for how to ask questions properly.
+
+**Key rule**: Always present options as clickable choices, never ask users to type responses when options can be provided.
+
 ---
 
 ## Core Principle: Generalization Flow
@@ -77,6 +83,8 @@ grep -r "Status: Captured" docs/lessons/ 2>/dev/null | wc -l
 
 ### 1.3 Present Mode Selection
 
+Present options as clickable choices (see [interaction-guidelines.md](../interaction-guidelines.md)):
+
 ```markdown
 ## AI Improvement Session
 
@@ -85,20 +93,17 @@ grep -r "Status: Captured" docs/lessons/ 2>/dev/null | wc -l
 
 **Unprocessed Lessons Found**: [count] lessons awaiting review
 
-Choose mode:
+**Choose what you'd like to improve:**
 
-**A. Review Lessons** (Recommended - [count] lessons pending)
-   Review and generalize captured lessons from project work
+- **Review Lessons** - Process [count] captured lessons (Recommended)
+- **Platform Patterns** - Update docs/platforms/{platform}/
+- **Principles** - Update docs/principles/
+- **Reusable Patterns** - Update docs/patterns/
+- **Commands** - Improve .claude/commands/
+- **Workflows** - Improve .claude/workflows/
+- **Templates** - Update docs/templates/
 
-**B. Direct Improvements**
-   1. Platform Patterns - docs/platforms/{platform}/
-   2. Principles - docs/principles/
-   3. Reusable Patterns - docs/patterns/
-   4. Commands - .claude/commands/
-   5. Workflows - .claude/workflows/
-   6. Templates - docs/templates/
-
-Select: A, B, or describe what you'd like to improve:
+What would you like to work on?
 ```
 
 ### 1.4 Map to Files
@@ -186,10 +191,13 @@ Found [count] unprocessed lessons from project work.
 
 ---
 
-Approve generalization plan?
-1. "approved" - Process all lessons as proposed
-2. "modify [number]" - Adjust specific lesson
-3. "skip [number]" - Don't generalize specific lesson
+**Approve generalization plan?**
+
+- **Approve All** - Process all lessons as proposed
+- **Modify** - Adjust specific lesson (specify which)
+- **Skip** - Don't generalize specific lesson (specify which)
+
+What would you like to do?
 ```
 
 ### 1.5.4 Process Approved Lessons
@@ -431,12 +439,13 @@ Based on our discussion, here are the changes I'll make:
 
 ---
 
-Review these changes?
+**Review these changes?**
 
-Options:
-1. "approved" - Apply all changes
-2. "modify" - Request adjustments
-3. "skip" - Discard and end session
+- **Approve** - Apply all changes
+- **Modify** - Request adjustments
+- **Cancel** - Discard and end session
+
+What would you like to do?
 ```
 
 ---
@@ -445,17 +454,17 @@ Options:
 
 **Wait for explicit approval before making changes.**
 
-### If "approved"
+### If "Approve"
 
 Proceed to Phase 5.
 
-### If "modify"
+### If "Modify"
 
 - Collect requested modifications
 - Update proposed changes
 - Present again for approval
 
-### If "skip"
+### If "Cancel"
 
 ```
 No changes made. Session ended.
