@@ -63,12 +63,12 @@ Continue asking until requirements are clear.
 # Generate spec ID
 SPEC_ID="SDD-$(date +%Y%m%d)-[short-slug]"
 
-mkdir -p docs/specs/$SPEC_ID
+mkdir -p ./projects/<project>/docs/specs/$SPEC_ID
 ```
 
 ### 1.3 Write Specification
 
-Create `docs/specs/{spec-id}/spec.md`:
+Create `./projects/<project>/docs/specs/{spec-id}/spec.md`:
 
 ```markdown
 # Spec: [Title]
@@ -146,7 +146,7 @@ git checkout -b feature/[spec-id]
 Add spec to version control:
 
 ```bash
-git add docs/specs/[spec-id]/
+git add ./projects/<project>/docs/specs/[spec-id]/
 git commit -m "spec: add [spec-id] specification
 
 [Brief description]"
@@ -162,7 +162,7 @@ Present spec for approval:
 ## Spec Ready for Review
 
 **Spec ID**: [SPEC_ID]
-**Location**: docs/specs/[spec-id]/spec.md
+**Location**: ./projects/<project>/docs/specs/[spec-id]/spec.md
 
 ### Summary
 
@@ -210,7 +210,7 @@ Proceed to implementation.
 
 ### 3.1 Create Implementation Notes and Lessons File
 
-Create `docs/specs/{spec-id}/implementation.md`:
+Create `./projects/<project>/docs/specs/{spec-id}/implementation.md`:
 
 ```markdown
 # Implementation Notes: [SPEC_ID]
@@ -247,7 +247,7 @@ Create `docs/specs/{spec-id}/implementation.md`:
 - [file2.py]: [What changed]
 ```
 
-**Also create** `docs/lessons/{spec-id}.md` for capturing lessons during implementation:
+**Also create** `./projects/<project>/docs/lessons/{spec-id}.md` for capturing lessons during implementation:
 
 ```markdown
 # Lessons: [SPEC_ID]
@@ -268,7 +268,7 @@ Follow the spec and implement:
 
 ### Capturing Lessons During Implementation
 
-As you work, capture lessons in `docs/lessons/{spec-id}.md`:
+As you work, capture lessons in `./projects/<project>/docs/lessons/{spec-id}.md`:
 
 ```markdown
 ## [YYYY-MM-DD] [Short Title]
@@ -496,7 +496,7 @@ Please provide values for these fields.
 
 ### 5.4 Create Documentation File
 
-Create `docs/catalog/{domain}_{layer}_{name}.md` using the template with all values filled in.
+Create `./projects/<project>/docs/catalog/{domain}_{layer}_{name}.md` using the template with all values filled in.
 
 ### 5.5 Update Other Documentation
 
@@ -508,7 +508,7 @@ Create `docs/catalog/{domain}_{layer}_{name}.md` using the template with all val
 ### Commit Documentation
 
 ```bash
-git add docs/ .claude/ CLAUDE.md
+git add ./projects/<project>/docs/ .claude/ CLAUDE.md
 git commit -m "docs: add data documentation for [spec-id]
 
 - Added catalog entry for {table/pipeline}
@@ -530,7 +530,7 @@ gh pr create \
 
 ## Spec
 
-See: docs/specs/[spec-id]/spec.md
+See: ./projects/<project>/docs/specs/[spec-id]/spec.md
 
 ## Changes
 
@@ -580,7 +580,7 @@ Update spec status:
 
 ```bash
 # Update spec.md status to "Implemented"
-git add docs/specs/[spec-id]/
+git add ./projects/<project>/docs/specs/[spec-id]/
 git commit -m "spec: mark [spec-id] as implemented"
 git push
 ```
@@ -589,7 +589,7 @@ git push
 
 ```
 PR ready for review: [PR URL]
-Spec location: docs/specs/[spec-id]/
+Spec location: ./projects/<project>/docs/specs/[spec-id]/
 ```
 
 ---
@@ -617,7 +617,7 @@ Running /improve-ai to review and generalize lessons...
 ```
 
 This will:
-- Review lessons from `docs/lessons/{spec-id}.md`
+- Review lessons from `./projects/<project>/docs/lessons/{spec-id}.md`
 - Separate generalizable from project-specific
 - Add generalized lessons to `.claude/lessons/`
 - Update parent `docs/` if patterns warrant it

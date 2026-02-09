@@ -104,9 +104,9 @@ cat .claude/lessons/patterns/*.md 2>/dev/null
 cat .claude/lessons/workflows/sdd.md 2>/dev/null
 ```
 
-**Project-specific lessons (if in project subrepo):**
+**Project-specific lessons (if in project):**
 ```bash
-cat docs/lessons/*.md 2>/dev/null
+cat ./projects/<project>/docs/lessons/*.md 2>/dev/null
 ```
 
 These lessons contain:
@@ -332,7 +332,7 @@ Running /improve-ai to review and generalize lessons...
 ```
 
 Execute the `/improve-ai` command to:
-- Review lessons captured in `projects/<project>/docs/lessons/<spec-id>.md`
+- Review lessons captured in `./projects/<project>/docs/lessons/<spec-id>.md`
 - Separate generalizable from project-specific learnings
 - Add generalized lessons to `.claude/lessons/`
 - Update parent `docs/` if patterns warrant it

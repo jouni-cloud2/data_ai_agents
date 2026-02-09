@@ -60,7 +60,7 @@ Implement the fix directly:
 
 If you encounter issues, discover gotchas, or apply patterns during implementation, capture them:
 
-**Create/append to:** `docs/lessons/general.md` (in project subrepo)
+**Create/append to:** `./projects/<project>/docs/lessons/general.md`
 
 ```markdown
 ## [YYYY-MM-DD] [Short Title]
@@ -265,7 +265,7 @@ Running /improve-ai to review and generalize lessons...
 ```
 
 This will:
-- Review lessons from `docs/lessons/general.md`
+- Review lessons from `./projects/<project>/docs/lessons/general.md`
 - Generalize and add to `.claude/lessons/`
 - Update parent docs if needed
 - Mark lessons as processed
