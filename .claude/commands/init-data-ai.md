@@ -132,6 +132,28 @@ grep -q "microsoft-docs" ~/.claude/mcp_settings.json 2>/dev/null
 # or installed as an npm package
 ```
 
+**Azure MCP Server** (for Azure resource management):
+```bash
+# Install via npm (recommended for Claude Code)
+npm install -g @azure/mcp
+
+# Or use npx (no installation)
+npx -y @azure/mcp@latest server start
+
+# Python alternative
+pip install msmcp-azure
+```
+
+**Fabric MCP Server** (for Microsoft Fabric development - Preview):
+```bash
+# Clone and build (dotnet required)
+git clone https://github.com/microsoft/mcp.git
+cd mcp
+dotnet build servers/Fabric.Mcp.Server/src/Fabric.Mcp.Server.csproj --configuration Release
+
+# Note: Executable will be at servers/Fabric.Mcp.Server/src/bin/Release/fabmcp
+```
+
 **Context7 MCP** (for library documentation):
 ```bash
 # Similar check and install process
@@ -150,6 +172,16 @@ Recommended MCP servers for data platform development:
 - **Purpose:** Official Azure and Fabric documentation
 - **Tools:** `microsoft_docs_search`, `microsoft_code_sample_search`, `microsoft_docs_fetch`
 
+### Azure MCP Server
+- **Purpose:** Manage Azure resources, run CLI commands, deploy infrastructure
+- **Tools:** 47+ Azure service integrations (AI Foundry, Storage, Databases, etc.)
+- **Status:** Production (v1.0+)
+
+### Fabric MCP Server
+- **Purpose:** Fabric API access, item definitions, best practices
+- **Tools:** Fabric template generation, API interactions
+- **Status:** Public Preview
+
 ### Context7 (Optional)
 - **Purpose:** Library and SDK documentation
 - **Tools:** Context-aware documentation lookup
@@ -164,10 +196,22 @@ Add to your Claude Code settings or `~/.claude/mcp_settings.json`:
     "microsoft-docs": {
       "command": "npx",
       "args": ["-y", "@anthropic/mcp-server-microsoft-docs"]
+    },
+    "azure": {
+      "command": "npx",
+      "args": ["-y", "@azure/mcp@latest", "server", "start"]
+    },
+    "fabric": {
+      "command": "/path/to/mcp/servers/Fabric.Mcp.Server/src/bin/Release/fabmcp",
+      "args": ["server", "start", "--mode", "all"]
     }
   }
 }
 ```
+
+**Note:** For Fabric MCP, replace `/path/to/` with your actual build path. Use `fabmcp.exe` on Windows.
+
+**Azure Authentication:** Run `az login` before using Azure MCP Server.
 
 Would you like me to update your MCP configuration? (yes/no)
 ```
@@ -354,6 +398,8 @@ source .env
 | Server | Status |
 |--------|--------|
 | microsoft-docs | ✅ Configured |
+| azure | ✅ Configured |
+| fabric | ✅ Configured (Preview) |
 | context7 | ⚪ Optional |
 
 ### Azure

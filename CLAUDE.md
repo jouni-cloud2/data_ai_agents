@@ -2,6 +2,15 @@
 
 AI team for building enterprise data platforms. Currently supports **Microsoft Fabric** and **Azure**.
 
+## Available MCP Servers
+
+This project uses the following Model Context Protocol servers:
+
+- **microsoft-docs** - Official Microsoft/Azure/Fabric documentation
+- **azure** - Azure resource management and infrastructure (47+ services)
+- **fabric** - Microsoft Fabric API access and development (Preview)
+- **context7** - Library and SDK documentation (optional)
+
 ## Commands
 
 | Command | Purpose |
