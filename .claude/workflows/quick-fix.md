@@ -47,13 +47,42 @@ Implement the fix directly:
 
 1. **Make the change** - Edit the necessary files
 2. **Verify locally** - Ensure the fix works
-3. **Stage changes** - `git add [files]`
+3. **Capture lessons** - Document issues encountered
+4. **Stage changes** - `git add [files]`
 
 ### During Implementation
 
 - Keep changes minimal and focused
 - Don't refactor unrelated code
 - Don't add features beyond the fix
+
+### Capture Lessons
+
+If you encounter issues, discover gotchas, or apply patterns during implementation, capture them:
+
+**Create/append to:** `docs/lessons/general.md` (in project subrepo)
+
+```markdown
+## [YYYY-MM-DD] [Short Title]
+
+**Context**: Quick fix - [brief context]
+**Problem**: [What issue was encountered]
+**Solution**: [How it was resolved]
+**Generalization**: [How this applies more broadly]
+**Related**:
+- Code: [file:line]
+
+**Status**: Captured
+
+---
+```
+
+**Examples of lessons to capture:**
+- API rate limits encountered
+- Platform-specific behaviors discovered
+- Error messages and their solutions
+- Configuration gotchas
+- Performance issues and fixes
 
 ---
 
@@ -214,46 +243,43 @@ PR ready for review: [PR URL]
 
 ---
 
-## Step 7: Data Documentation (If New Data Created)
+## Step 7: Automatic Documentation and Learning
 
-**If your quick fix created any new tables or pipelines**, you MUST document them.
+After merge decision, **automatically** run documentation and learning workflows.
 
-### Check for New Data Assets
+### Step 7.1: Run /document Command
 
-Did this fix create:
-- [ ] New tables
-- [ ] New pipelines
-- [ ] New data flows
-
-If YES to any, proceed with documentation.
-
-### Ask User for Required Values
-
-```
-## Data Documentation Required
-
-This fix created new data asset(s): [list]
-
-I need your input on governance fields:
-
-1. **Owner** (Business owner):
-2. **Steward** (Governance responsible):
-3. **Purpose** (Business value):
-4. **Data Classification** (Public/Internal/Confidential/Restricted):
-5. **Retention Policy** (Duration, archive strategy):
-6. **Consumers** (Who uses this?):
-
-Please provide values.
+```markdown
+Running /document to update project documentation...
 ```
 
-### Create Documentation
+This will:
+- Create catalog entries for any new tables/pipelines
+- Update source documentation if needed
+- Update indexes and verify completeness
 
-Create `docs/catalog/{domain}_{layer}_{name}.md` with template from `.claude/skills/platform/data-documentation-template.md`.
+### Step 7.2: Run /improve-ai Command
 
-```bash
-git add docs/catalog/
-git commit --amend --no-edit  # Add to existing commit
-git push --force-with-lease
+```markdown
+Running /improve-ai to review and generalize lessons...
+```
+
+This will:
+- Review lessons from `docs/lessons/general.md`
+- Generalize and add to `.claude/lessons/`
+- Update parent docs if needed
+- Mark lessons as processed
+
+### Step 7.3: Summary
+
+```markdown
+## Quick Fix Complete
+
+**Development**: ✅ Complete
+**Documentation**: ✅ Updated via /document
+**Lessons**: ✅ Captured and generalized via /improve-ai
+
+Work complete!
 ```
 
 ---

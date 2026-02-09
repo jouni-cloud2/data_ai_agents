@@ -208,7 +208,7 @@ Proceed to implementation.
 
 ## Step 3: Implementation
 
-### 3.1 Create Implementation Notes
+### 3.1 Create Implementation Notes and Lessons File
 
 Create `docs/specs/{spec-id}/implementation.md`:
 
@@ -247,13 +247,55 @@ Create `docs/specs/{spec-id}/implementation.md`:
 - [file2.py]: [What changed]
 ```
 
-### 3.2 Implement
+**Also create** `docs/lessons/{spec-id}.md` for capturing lessons during implementation:
+
+```markdown
+# Lessons: [SPEC_ID]
+
+Lessons learned during implementation of this spec.
+
+---
+```
+
+### 3.2 Implement and Capture Lessons
 
 Follow the spec and implement:
 
 1. **Work incrementally** - Complete one component at a time
 2. **Update implementation notes** - Track progress and decisions
-3. **Stage changes** - `git add` as you complete components
+3. **Capture lessons** - Document issues, gotchas, and patterns as you discover them
+4. **Stage changes** - `git add` as you complete components
+
+### Capturing Lessons During Implementation
+
+As you work, capture lessons in `docs/lessons/{spec-id}.md`:
+
+```markdown
+## [YYYY-MM-DD] [Short Title]
+
+**Context**: [What you were implementing]
+**Problem**: [Issue encountered, pattern discovered, gotcha found]
+**Solution**: [How you resolved it or what approach worked]
+**Generalization**: [How this applies beyond this specific case]
+**Related**:
+- Code: [file:line]
+- Spec: [spec-id]
+- Docs: [relevant doc]
+
+**Status**: Captured
+
+---
+```
+
+**Capture lessons for:**
+- **Errors encountered**: API errors, platform errors, configuration issues
+- **Patterns discovered**: Effective approaches that worked well
+- **Gotchas**: Unexpected behaviors or edge cases
+- **Performance**: Memory limits, timeouts, optimization techniques
+- **Platform quirks**: Fabric/Azure/Databricks-specific behaviors
+- **Dependency issues**: Version conflicts, missing packages
+
+**Don't overthink it** - Quick capture is better than perfect documentation. The `/improve-ai` command will review and generalize these later.
 
 ### 3.3 Validate Before Commit
 
@@ -548,6 +590,57 @@ git push
 ```
 PR ready for review: [PR URL]
 Spec location: docs/specs/[spec-id]/
+```
+
+---
+
+## Step 7: Automatic Documentation and Learning
+
+After merge decision (for both "merge" and "hold"), **automatically** run documentation and learning workflows.
+
+### Step 7.1: Run /document Command
+
+```markdown
+Running /document to update project documentation...
+```
+
+This will:
+- Create catalog entries for any new tables/pipelines
+- Update source documentation if needed
+- Update indexes and verify completeness
+- Ask user for governance fields
+
+### Step 7.2: Run /improve-ai Command
+
+```markdown
+Running /improve-ai to review and generalize lessons...
+```
+
+This will:
+- Review lessons from `docs/lessons/{spec-id}.md`
+- Separate generalizable from project-specific
+- Add generalized lessons to `.claude/lessons/`
+- Update parent `docs/` if patterns warrant it
+- Mark lessons as processed
+
+### Step 7.3: Summary
+
+```markdown
+## Full SDD Workflow Complete
+
+**Development**: ✅ Complete
+**Documentation**: ✅ Updated via /document
+**Lessons**: ✅ Captured and generalized via /improve-ai
+
+### Summary
+- Spec: [spec-id]
+- Branch: [branch-name]
+- PR: [PR URL]
+- Lessons captured: [count]
+- Lessons generalized: [count]
+- Documentation updated: [list]
+
+Work complete!
 ```
 
 ---

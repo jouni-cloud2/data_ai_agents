@@ -82,7 +82,42 @@ Based on detected platform, read relevant docs:
 - `docs/principles/data-governance.md` - Classification, ownership
 - `docs/principles/data-quality.md` - Validation rules
 
-### 0.4 Confirm Environment
+### 0.4 Load Relevant Lessons
+
+Load lessons from previous work to avoid known pitfalls:
+
+**Platform-specific lessons:**
+```bash
+# For Fabric
+cat .claude/lessons/fabric/*.md 2>/dev/null
+
+# For Azure
+cat .claude/lessons/azure/*.md 2>/dev/null
+
+# For Databricks
+cat .claude/lessons/databricks/*.md 2>/dev/null
+```
+
+**Pattern lessons (always load):**
+```bash
+cat .claude/lessons/patterns/*.md 2>/dev/null
+cat .claude/lessons/workflows/sdd.md 2>/dev/null
+```
+
+**Project-specific lessons (if in project subrepo):**
+```bash
+cat docs/lessons/*.md 2>/dev/null
+```
+
+These lessons contain:
+- Known pitfalls and solutions
+- Proven patterns from previous work
+- Performance optimizations
+- Common mistakes to avoid
+
+Use these lessons to inform implementation decisions.
+
+### 0.5 Confirm Environment
 
 ```markdown
 ## Environment Detection
@@ -93,6 +128,11 @@ Based on detected platform, read relevant docs:
 
 **Loaded Documentation:**
 - [List of loaded platform docs]
+
+**Loaded Lessons:**
+- [Count] platform-specific lessons
+- [Count] pattern lessons
+- [Count] project lessons
 
 Is this correct? (yes/change)
 ```
@@ -267,66 +307,56 @@ Use templates from `docs/templates/`:
 
 ---
 
-## Final Step: Update AI (Both Workflows)
+## Final Step: Documentation and Learning (Both Workflows)
 
-After merge decision, ask:
+After merge decision, **automatically** proceed with documentation and learning capture:
+
+### Step 1: Run /document Command
 
 ```markdown
-Development complete!
-
-Would you like me to capture learnings from this work?
-
-**Generalizable learnings** → Update parent repo (docs/, .claude/)
-**Project-specific learnings** → Update project docs only
-
-Updates may include:
-- Common mistakes to avoid (generalized)
-- New patterns discovered (generalized)
-- Project-specific configurations (project only)
-
-Capture learnings? (yes/no)
+Running /document to update project documentation...
 ```
 
-### If User Says YES
+Execute the `/document` command to:
+- Update catalog for any new tables/datasets
+- Update source documentation if needed
+- Update indexes
+- Verify documentation completeness
 
-1. **Analyze the work**:
-   - Review changes made
-   - Identify any issues encountered
-   - Extract reusable patterns
-   - Separate generalizable vs project-specific learnings
+See [document.md](document.md) for full process.
 
-2. **For generalizable learnings** (update parent repo):
-   - Add to `docs/platforms/{platform}/pitfalls.md` if new pitfall
-   - Add to `docs/patterns/` if new reusable pattern
-   - Update `docs/principles/` if principle clarification needed
+### Step 2: Run /improve-ai Command
 
-3. **For project-specific learnings** (update project repo):
-   - Update project's architecture docs
-   - Add to project's runbooks
-
-4. **Commit improvements**:
-```bash
-# Parent repo (if generalizable)
-cd ../..  # Back to data_ai_agents root
-git add docs/
-git commit -m "learn: capture learnings from [project]/[spec-id]
-
-- [Generalized learning 1]
-- [Generalized learning 2]"
-
-# Project repo (if project-specific)
-cd projects/{project}
-git add docs/
-git commit -m "docs: capture project learnings from [spec-id]
-
-- [Project-specific learning 1]"
+```markdown
+Running /improve-ai to review and generalize lessons...
 ```
 
-### If User Says NO
+Execute the `/improve-ai` command to:
+- Review lessons captured in `projects/<project>/docs/lessons/<spec-id>.md`
+- Separate generalizable from project-specific learnings
+- Add generalized lessons to `.claude/lessons/`
+- Update parent `docs/` if patterns warrant it
+- Mark lessons as processed
 
-```
-No problem! Skipping AI updates.
-Work complete.
+See [improve-ai.md](improve-ai.md) for full process.
+
+### Step 3: Summary
+
+```markdown
+## SDD Workflow Complete
+
+**Development**: ✅ Complete
+**Documentation**: ✅ Updated via /document
+**Lessons**: ✅ Captured and generalized via /improve-ai
+
+### Summary
+- Spec: [spec-id]
+- Branch: [branch-name]
+- PR: [PR URL]
+- Lessons captured: [count]
+- Documentation updated: [list]
+
+Work complete!
 ```
 
 ---

@@ -63,7 +63,19 @@ pwd
 # - In parent repo → Focus on improving AI team assets directly
 ```
 
-### 1.2 Present Options
+### 1.2 Check for Unprocessed Lessons
+
+Before presenting options, check if there are lessons to review:
+
+```bash
+# Check project lessons (if in project)
+find docs/lessons -name "*.md" -exec grep -l "Status: Captured" {} \; 2>/dev/null
+
+# Count unprocessed lessons
+grep -r "Status: Captured" docs/lessons/ 2>/dev/null | wc -l
+```
+
+### 1.3 Present Mode Selection
 
 ```markdown
 ## AI Improvement Session
@@ -71,19 +83,25 @@ pwd
 **Current Location:** [path]
 **Context:** [Parent Repo / Project: {name}]
 
-What would you like to improve?
+**Unprocessed Lessons Found**: [count] lessons awaiting review
 
-1. **Platform Patterns** - docs/platforms/{platform}/ (pitfalls, patterns, standards)
-2. **Principles** - docs/principles/ (governance, quality, architecture)
-3. **Reusable Patterns** - docs/patterns/ (API ingestion, SCD, error handling)
-4. **Commands** - .claude/commands/ (sdd, document, architect, etc.)
-5. **Workflows** - .claude/workflows/ (quick-fix, full-sdd)
-6. **Templates** - docs/templates/ (catalog, ADR, source, runbook)
+Choose mode:
 
-Or describe what you'd like to improve:
+**A. Review Lessons** (Recommended - [count] lessons pending)
+   Review and generalize captured lessons from project work
+
+**B. Direct Improvements**
+   1. Platform Patterns - docs/platforms/{platform}/
+   2. Principles - docs/principles/
+   3. Reusable Patterns - docs/patterns/
+   4. Commands - .claude/commands/
+   5. Workflows - .claude/workflows/
+   6. Templates - docs/templates/
+
+Select: A, B, or describe what you'd like to improve:
 ```
 
-### 1.3 Map to Files
+### 1.4 Map to Files
 
 | Area | Files | When to Update |
 |------|-------|----------------|
@@ -93,10 +111,148 @@ Or describe what you'd like to improve:
 | Commands | `.claude/commands/*.md` | Workflow improvements |
 | Workflows | `.claude/workflows/*.md` | Process improvements |
 | Templates | `docs/templates/*.md` | Template enhancements |
+| Lessons (Generalized) | `.claude/lessons/{area}/*.md` | Lightweight accumulated learnings |
 
 ---
 
-## Phase 2: Probing Dialog
+## Phase 1.5: Lesson Review Mode (If Selected)
+
+**This phase runs when user selects "A. Review Lessons" or when automatically invoked by `/sdd`.**
+
+### 1.5.1 Load All Project Lessons
+
+```bash
+# Find all lesson files
+find docs/lessons -name "*.md" -type f 2>/dev/null
+
+# Read each file
+for file in docs/lessons/*.md; do
+  cat "$file"
+done
+```
+
+### 1.5.2 Categorize Lessons
+
+For each lesson with "Status: Captured", analyze and categorize:
+
+| Category | Criteria | Destination |
+|----------|----------|-------------|
+| **Generalizable - Platform** | Platform-specific (Fabric/Azure/Databricks) | `.claude/lessons/{platform}/` |
+| **Generalizable - Pattern** | Cross-platform pattern | `.claude/lessons/patterns/` |
+| **Generalizable - Workflow** | Process improvement | `.claude/lessons/workflows/` |
+| **Project-Specific** | Only applies to this project | Keep in project `docs/lessons/` |
+| **Document-Worthy** | Significant enough for docs | Both `.claude/lessons/` AND `docs/` |
+
+### 1.5.3 Present Lesson Review
+
+```markdown
+## Lesson Review
+
+Found [count] unprocessed lessons from project work.
+
+### Categorization Summary
+
+**Generalizable Lessons** ([count]):
+- [count] Platform-specific (Fabric/Azure/Databricks)
+- [count] Cross-platform patterns
+- [count] Workflow improvements
+
+**Project-Specific Lessons** ([count]):
+- Will remain in project docs/lessons/
+
+**Document-Worthy** ([count]):
+- Significant patterns that should be promoted to docs/
+
+---
+
+### Lesson Details
+
+#### 1. [Lesson Title] - [Category]
+
+**Original**:
+> [Problem]: [original problem text]
+> [Solution]: [original solution text]
+
+**Generalized Form**:
+> [Generalized version with project-specific details removed]
+
+**Proposed Action**:
+- Add to: `.claude/lessons/{area}/{file}.md`
+- [If document-worthy] Also update: `docs/platforms/{platform}/pitfalls.md`
+
+---
+
+[Repeat for all lessons]
+
+---
+
+Approve generalization plan?
+1. "approved" - Process all lessons as proposed
+2. "modify [number]" - Adjust specific lesson
+3. "skip [number]" - Don't generalize specific lesson
+```
+
+### 1.5.4 Process Approved Lessons
+
+For each approved lesson:
+
+1. **Append to parent `.claude/lessons/`**:
+   ```bash
+   echo "## [DATE] [Title]
+
+   **Context**: [Generalized context]
+   **Problem**: [Generalized problem]
+   **Solution**: [Generalized solution]
+   **Generalization**: [How this applies broadly]
+   **Related**:
+   - Origin: projects/[project]/docs/lessons/[file]
+   - Spec: [spec-id if applicable]
+
+   **Status**: Generalized
+
+   ---
+   " >> .claude/lessons/{area}/{file}.md
+   ```
+
+2. **Update parent docs/ if document-worthy**:
+   - Add to `docs/platforms/{platform}/pitfalls.md`
+   - Or create new pattern in `docs/patterns/`
+   - Or update existing docs
+
+3. **Mark original lesson as generalized**:
+   ```bash
+   # Update status in project lesson file
+   sed -i '' 's/Status: Captured/Status: Generalized/' docs/lessons/[file].md
+   ```
+
+4. **Keep project-specific lessons unchanged** (they stay "Captured")
+
+5. **Commit changes**:
+   ```bash
+   # Commit to parent repo (if generalizable)
+   cd ../..  # Back to data_ai_agents root
+   git add .claude/lessons/ docs/
+   git commit -m "learn: generalize lessons from [project]
+
+   - [Lesson 1 summary]
+   - [Lesson 2 summary]
+   - [count] lessons added to .claude/lessons/
+
+   From: projects/[project]/docs/lessons/"
+
+   # Commit to project repo (mark as generalized)
+   cd projects/[project]
+   git add docs/lessons/
+   git commit -m "docs: mark lessons as generalized
+
+   Lessons reviewed and added to parent repo."
+   ```
+
+**Skip to Phase 5 (Final Review) after processing lessons.**
+
+---
+
+## Phase 2: Probing Dialog (Direct Improvements Mode)
 
 Ask targeted questions based on the selected area. **Do not skip this phase** - the goal is to surface implicit knowledge.
 
