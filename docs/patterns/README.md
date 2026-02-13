@@ -10,6 +10,7 @@ Reusable patterns for data platform development across all platforms.
 | [Incremental Load](incremental-load.md) | CDC, watermarks, merge strategies | Large/changing datasets |
 | [SCD Type 2](scd-type-2.md) | Slowly Changing Dimensions | Dimensional modeling |
 | [Error Handling](error-handling.md) | Retry, dead-letter, alerting | Pipeline reliability |
+| [PII Mock Data Generation](pii-mock-data-generation.md) | Generate synthetic data for PII sources | Dev environment without production PII |
 
 ## Pattern Structure
 
