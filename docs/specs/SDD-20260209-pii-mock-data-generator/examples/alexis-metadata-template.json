@@ -1,0 +1,264 @@
+{
+  "source": "alexis",
+  "source_type": "rest_api",
+  "base_url": "https://api.alexishr.com/v1",
+  "extracted_at": "2026-02-09T10:00:00Z",
+  "entities": [
+    {
+      "name": "departments",
+      "api_endpoint": "/department",
+      "bronze_table": "bronze_alexis_departments",
+      "row_count": 5,
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "pii": false,
+          "primary_key": true,
+          "faker_method": "uuid4"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "pii": false,
+          "faker_method": "random_element",
+          "faker_args": {
+            "elements": ["Engineering", "Sales", "Marketing", "Finance", "Operations"]
+          }
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "pii": false,
+          "faker_method": "random_element",
+          "faker_args": {
+            "elements": ["ENG", "SALES", "MKT", "FIN", "OPS"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "offices",
+      "api_endpoint": "/office",
+      "bronze_table": "bronze_alexis_offices",
+      "row_count": 3,
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "pii": false,
+          "primary_key": true,
+          "faker_method": "uuid4"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "pii": false,
+          "faker_method": "city"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "pii": false,
+          "faker_method": "random_element",
+          "faker_args": {
+            "elements": ["Finland", "Sweden", "Norway"]
+          }
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "pii": false,
+          "faker_method": "random_element",
+          "faker_args": {
+            "elements": ["FI", "SE", "NO"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "teams",
+      "api_endpoint": "/team",
+      "bronze_table": "bronze_alexis_teams",
+      "row_count": 10,
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "pii": false,
+          "primary_key": true,
+          "faker_method": "uuid4"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "pii": false,
+          "faker_method": "bs"
+        },
+        {
+          "name": "departmentId",
+          "type": "string",
+          "pii": false,
+          "foreign_key": "departments.id"
+        }
+      ]
+    },
+    {
+      "name": "employees",
+      "api_endpoint": "/employee",
+      "bronze_table": "bronze_alexis_employees",
+      "row_count": 200,
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "pii": false,
+          "primary_key": true,
+          "faker_method": "uuid4"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "pii": true,
+          "faker_method": "email"
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "pii": true,
+          "faker_method": "first_name"
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "pii": true,
+          "faker_method": "last_name"
+        },
+        {
+          "name": "personalNumber",
+          "type": "string",
+          "pii": true,
+          "faker_method": "ssn"
+        },
+        {
+          "name": "teamId",
+          "type": "string",
+          "pii": false,
+          "foreign_key": "teams.id"
+        },
+        {
+          "name": "departmentId",
+          "type": "string",
+          "pii": false,
+          "foreign_key": "departments.id"
+        },
+        {
+          "name": "officeId",
+          "type": "string",
+          "pii": false,
+          "foreign_key": "offices.id"
+        },
+        {
+          "name": "employmentType",
+          "type": "string",
+          "pii": false,
+          "faker_method": "random_element",
+          "faker_args": {
+            "elements": ["Full-time", "Part-time", "Contract", "Intern"]
+          }
+        },
+        {
+          "name": "startDate",
+          "type": "date",
+          "pii": false,
+          "faker_method": "date_between",
+          "faker_args": {
+            "start_date": "-5y",
+            "end_date": "today"
+          }
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "pii": false,
+          "faker_method": "random_element",
+          "faker_args": {
+            "elements": ["Active", "Active", "Active", "Active", "Inactive"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "compensation",
+      "api_endpoint": "/compensation",
+      "bronze_table": "bronze_alexis_compensation",
+      "row_count": 200,
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "pii": false,
+          "primary_key": true,
+          "faker_method": "uuid4"
+        },
+        {
+          "name": "employeeId",
+          "type": "string",
+          "pii": false,
+          "foreign_key": "employees.id"
+        },
+        {
+          "name": "salary",
+          "type": "int",
+          "pii": false,
+          "faker_method": "random_int",
+          "faker_args": {
+            "min": 35000,
+            "max": 150000
+          }
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "pii": false,
+          "faker_method": "random_element",
+          "faker_args": {
+            "elements": ["EUR", "EUR", "EUR", "SEK", "NOK"]
+          }
+        },
+        {
+          "name": "effectiveDate",
+          "type": "date",
+          "pii": false,
+          "faker_method": "date_between",
+          "faker_args": {
+            "start_date": "-2y",
+            "end_date": "today"
+          }
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "teams.departmentId",
+      "to": "departments.id"
+    },
+    {
+      "from": "employees.teamId",
+      "to": "teams.id"
+    },
+    {
+      "from": "employees.departmentId",
+      "to": "departments.id"
+    },
+    {
+      "from": "employees.officeId",
+      "to": "offices.id"
+    },
+    {
+      "from": "compensation.employeeId",
+      "to": "employees.id"
+    }
+  ]
+}
