@@ -176,6 +176,51 @@ api_key = mssparkutils.credentials.getSecret("keyvault", "secret-name")
 
 ## Git Integration Pitfalls
 
+### Missing `.platform` File for New Artifacts
+
+**Problem**: New notebooks, lakehouses, or pipelines created in Git are silently ignored by Fabric Git integration.
+
+**Cause**: Every Fabric artifact tracked in Git must include a `.platform` file alongside its content file. Without it, Fabric Git sync does not recognize the item exists.
+
+**Symptom**: Artifact is visible in Git repo but never appears in Fabric workspace after sync.
+
+**Bad** (notebook folder without `.platform`):
+```
+fabric/it/notebooks/
+└── my_notebook.Notebook/
+    └── notebook-content.py          ← Only content, no .platform
+```
+
+**Good**:
+```
+fabric/it/notebooks/
+└── my_notebook.Notebook/
+    ├── .platform                    ← Required!
+    └── notebook-content.py
+```
+
+**`.platform` format** (notebook):
+```json
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "my_notebook"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "<uuid4>"
+  }
+}
+```
+
+**Rule**: Always create `.platform` whenever you create a new Fabric artifact folder. Check with:
+```bash
+find fabric/ -name "*.Notebook" -type d | while read d; do
+  [ -f "$d/.platform" ] || echo "MISSING .platform: $d"
+done
+```
+
 ### Sync Conflicts
 
 **Problem**: UI changes conflict with Git changes.

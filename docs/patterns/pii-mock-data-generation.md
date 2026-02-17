@@ -573,6 +573,98 @@ compensation    │
 
 ---
 
+## Cross-Domain Shared Person Registry
+
+When multiple domains need to join on person identity in dev/test (e.g. IT requesters = HR employees = Projects team members), use a **shared mock person registry** with stable IDs.
+
+### Problem
+
+Without a shared registry, each domain generates independent random persons — cross-domain joins are impossible. This prevents testing MDM, Lean MDM, and cross-domain analytics in dev.
+
+### Solution: Shared `persons.json`
+
+Create a fixed list of persons (e.g. 40–100) with **stable IDs** (never change). Each domain generator reads this list from its own lakehouse copy.
+
+```
+fabric/
+├── mdm/                                # MDM domain owns the canonical list
+│   └── notebooks/
+│       └── util_generate_mock_persons  # Creates persons.json
+│           → Files/mock/shared/persons.json
+│
+├── it/
+│   └── notebooks/
+│       └── util_generate_mock_data_it  # Reads persons.json, generates IT entities
+│
+└── projects/
+    └── notebooks/
+        └── util_generate_mock_data_projects  # Reads persons.json, generates Projects entities
+```
+
+### Person Registry Schema
+
+```json
+[
+  {
+    "id": "P001",
+    "first_name": "Mikael",
+    "last_name": "Virtanen",
+    "email": "mikael.virtanen@company.fi",
+    "phone": "+358 40 123 4567",
+    "department": "Engineering"
+  }
+]
+```
+
+**ID rules:**
+- Format: `P{NNN}` with zero-padding (P001, P002 ... P040)
+- **Never change existing IDs** — cross-domain joins depend on stability
+- Add new persons at the end only
+
+### Domain Mapping Convention
+
+| Domain | Entity | ID Type | Mapping |
+|--------|--------|---------|---------|
+| IT (Freshservice) | `requesters.id` | int | `int(P001[1:])` → `1` |
+| IT (Freshservice) | `agents.id` | int | Same — agents = subset of persons |
+| Projects (Koho) | `employees.id` | string | Verbatim `"P001"` |
+| HR (Alexis) | `employees.id` | string | Verbatim `"P001"` (planned) |
+
+### Reading in Fabric Notebooks
+
+```python
+import json
+from notebookutils import mssparkutils
+
+# Read shared registry from own lakehouse Files
+persons_raw = mssparkutils.fs.head("Files/mock/shared/persons.json", 1024 * 1024)
+PERSONS = json.loads(persons_raw)
+
+# Use persons to generate domain entities
+requesters = [
+    {
+        "id": int(p["id"][1:]),          # P001 → 1
+        "first_name": p["first_name"],
+        "last_name": p["last_name"],
+        "email": p["email"],
+        "department_id": dept_id         # FK to departments
+    }
+    for p in PERSONS
+]
+```
+
+### Run Order
+
+1. Run `util_generate_mock_persons` (MDM domain) **once** — creates `persons.json`
+2. Copy `persons.json` to `Files/mock/shared/` in each domain lakehouse (or re-run util in each)
+3. Run domain-specific generators — they read from their local `persons.json`
+
+### When to Use This Pattern
+
+- Multiple domains model the same real-world persons (employees, users, contacts)
+- You need cross-domain joins in dev (IT ↔ HR ↔ Projects)
+- Building a lean/light MDM layer for person identity
+
 ## Related Patterns
 
 - [Environment Separation](../principles/environment-separation.md) - Dev/Test/Prod isolation

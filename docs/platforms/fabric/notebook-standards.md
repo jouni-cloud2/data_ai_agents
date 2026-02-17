@@ -376,6 +376,54 @@ config = {
 keyvault = config[environment]["keyvault"]
 ```
 
+### `use_mock_data` Parameter (Bronze Notebooks)
+
+All bronze ingestion notebooks should support a `use_mock_data` bool parameter. When `True`, data is loaded from local JSON files instead of calling the live API. This enables pipeline testing in dev without external API access or real PII.
+
+```python
+# %% Parameters
+use_mock_data = False      # Set to True in dev to use mock fixtures
+pipeline_run_id = ""       # Passed by pipeline for lineage tracking
+
+# %% Load data
+MOCK_BASE_PATH = "Files/mock/{domain}"  # e.g. Files/mock/it
+
+if use_mock_data:
+    # Load from local mock files (no API call)
+    import json
+    from notebookutils import mssparkutils
+
+    raw_data = json.loads(
+        mssparkutils.fs.head(f"{MOCK_BASE_PATH}/{entity}/data.json", 1024 * 1024)
+    )
+    df = spark.createDataFrame(raw_data)
+else:
+    # Live API call
+    api_key = mssparkutils.credentials.getSecret("kv-dataplatform-dev", "api-key")
+    response = requests.get(API_URL, headers={"Authorization": f"Bearer {api_key}"})
+    df = spark.createDataFrame(response.json().get("results", []))
+```
+
+**Pipeline wiring** — pass `use_mock_data` as a pipeline parameter:
+
+```json
+{
+  "parameters": {
+    "use_mock_data": { "type": "bool", "defaultValue": false }
+  },
+  "activities": [
+    {
+      "name": "Bronze Load",
+      "parameters": {
+        "use_mock_data": { "value": "@pipeline().parameters.use_mock_data" }
+      }
+    }
+  ]
+}
+```
+
+**Run mock mode** by triggering the pipeline with `use_mock_data = true`. No code changes needed.
+
 ## Performance Tips
 
 | Tip | Implementation |

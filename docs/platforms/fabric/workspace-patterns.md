@@ -66,6 +66,44 @@ Each workspace contains:
     └── sm_{domain}_{env}
 ```
 
+### Dual Lakehouse per Domain
+
+For domains with DDM (Dynamic Data Masking) or clear Bronze/Silver separation, use **two lakehouses** per workspace:
+
+```
+{domain}_{env} (Workspace)
+├── lh_{domain}_bronze_{env} (Lakehouse — raw ingestion)
+│   ├── Tables/
+│   │   └── bronze_{source}_{entity}     # PII may be present
+│   └── Files/
+│       └── mock/{domain}/{entity}/      # Mock data (dev only)
+│
+├── lh_{domain}_curated_{env} (Lakehouse — silver + views)
+│   ├── Tables/
+│   │   └── silver_{entity}              # FK refs only, no raw PII
+│   └── SQL Analytics Endpoint
+│       └── vw_ddm_bronze_{source}_{entity}  # DDM masked views
+│
+└── Notebooks/
+    ├── bronze_load_{source}             # Default: lh_{domain}_bronze_{env}
+    ├── silver_transform_{source}        # Default: lh_{domain}_curated_{env}
+    ├── setup_ddm_views_{domain}         # Deploys DDM views once
+    └── util_generate_mock_data_{domain} # Generates dev fixture data
+```
+
+**When to use dual lakehouse:**
+- Domain contains PII and needs DDM views for analyst access
+- Silver tables should be isolated from raw bronze data
+- Clear medallion boundary required (Bronze restricted, Curated open)
+
+**Cross-lakehouse reads in notebooks:**
+
+```python
+# Silver notebook reads bronze across lakehouses
+BRONZE_LAKEHOUSE = "lh_it_bronze_dev"
+df = spark.table(f"{BRONZE_LAKEHOUSE}.bronze_freshservice_requesters")
+```
+
 ## Git Integration
 
 ### Branch Strategy

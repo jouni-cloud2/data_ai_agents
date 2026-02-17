@@ -255,6 +255,76 @@ spark.read.option("header", "true").option("inferSchema", "true") \
     .write.format("delta").saveAsTable("bronze_csv_data")
 ```
 
+## Dynamic Data Masking (DDM) Views
+
+Deploy DDM views programmatically from a Fabric notebook using pyodbc + Power BI Bearer token. This avoids manual SQL endpoint UI work and makes masking reproducible.
+
+### When to Use
+
+Use DDM views when:
+- Bronze tables contain PII (names, emails, phone numbers)
+- Analysts need access to the table structure but not raw PII values
+- You want to control PII visibility via Azure AD group membership
+
+### DDM View Pattern
+
+```python
+import pyodbc
+import struct
+from notebookutils import mssparkutils
+
+# 1. Get token for SQL endpoint
+token = mssparkutils.credentials.getToken("https://analysis.windows.net/powerbi/api")
+token_bytes = bytes(f"Bearer {token}", "utf-8")
+token_struct = struct.pack(f"<I{len(token_bytes)}s", len(token_bytes), token_bytes)
+
+# 2. Connect to SQL Analytics Endpoint
+WORKSPACE_ID = "<workspace_id>"  # e.g. from workspace settings
+SERVER = f"{WORKSPACE_ID}.datawarehouse.fabric.microsoft.com"
+DATABASE = "lh_{domain}_curated_dev"  # curated lakehouse = masking layer
+
+conn = pyodbc.connect(
+    f"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={SERVER};DATABASE={DATABASE};",
+    attrs_before={1256: token_struct}  # SQL_COPT_SS_ACCESS_TOKEN
+)
+
+# 3. Create DDM view
+cursor = conn.cursor()
+cursor.execute("""
+    CREATE OR ALTER VIEW vw_ddm_bronze_freshservice_requesters AS
+    SELECT
+        id,
+        CASE WHEN IS_MEMBER('c2-datalake') = 1 THEN email ELSE NULL END AS email,
+        CASE WHEN IS_MEMBER('c2-datalake') = 1 THEN first_name ELSE NULL END AS first_name,
+        CASE WHEN IS_MEMBER('c2-datalake') = 1 THEN last_name ELSE NULL END AS last_name,
+        department_id,
+        _ingested_at,
+        _source_system,
+        _environment
+    FROM lh_it_bronze_dev.dbo.bronze_freshservice_requesters
+""")
+conn.commit()
+conn.close()
+print("DDM view created successfully")
+```
+
+### Key Decisions
+
+| Decision | Recommendation |
+|----------|----------------|
+| **Where to create views** | On curated lakehouse SQL endpoint (not bronze) |
+| **Source reference** | `{bronze_lakehouse}.dbo.{table}` in view body |
+| **Access control** | `IS_MEMBER('{aad_group}')` — group members see plaintext, others see NULL |
+| **View naming** | `vw_ddm_{source_lakehouse}_{entity}` |
+| **Notebook to deploy** | `setup_ddm_views_{domain}` — run once or on schema change |
+| **No PII tables** | Create view but no CASE masking needed |
+
+### Run Order
+
+1. Deploy bronze table (via `bronze_load_*` notebook)
+2. Run `setup_ddm_views_{domain}` once to create views
+3. Analysts query via curated lakehouse SQL endpoint (masked by default)
+
 ## Access Control
 
 ### OneLake RBAC

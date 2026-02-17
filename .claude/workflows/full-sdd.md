@@ -27,7 +27,13 @@ Gate #1: Full SDD Selected
            ↓
     Gate #2: Spec Approval
            ↓
-    Implementation
+    Story Splitting (names only — small stories)
+           ↓
+    Gate #2b: Story List Approval
+           ↓
+    Write Full Stories (one by one, in spec)
+           ↓
+    Implementation (story by story)
            ↓
     Validate Changes (pre-commit)
            ↓
@@ -209,7 +215,100 @@ Display the full spec.md content, then ask again.
 
 ### If "Approve"
 
-Proceed to implementation.
+Proceed to story splitting.
+
+---
+
+## Step 2b: Story Splitting
+
+After spec approval, split the spec into **small, independently implementable stories**. A story should be completable in one focused session — one notebook, one pipeline, one lakehouse definition, etc.
+
+### 2b.1 Draft Story List (Names Only)
+
+Analyze the spec and produce a flat list of story names. Keep each name short (3–8 words). Do NOT write full stories yet.
+
+```markdown
+## Story List for [SPEC_ID]
+
+Stories to implement (in dependency order):
+
+1. Create lh_it_bronze_dev lakehouse definition
+2. Create lh_it_curated_dev lakehouse definition
+3. Create util_generate_mock_data_it notebook
+4. Update bronze_load_freshservice default lakehouse + mock param
+5. Update silver_transform_freshservice to curated lakehouse
+6. Create setup_ddm_views_it notebook
+7. Create pl_it_daily_ingest pipeline
+8. Delete old it_daily_pipeline
+
+**Story sizing guidance:**
+- Each story = one artifact or one focused change
+- No story spans multiple unrelated notebooks
+- Stories are ordered by dependency (earlier = prerequisite for later)
+```
+
+### 2b.2 Gate #2b: Story List Approval
+
+Present the story list for approval:
+
+```markdown
+## Story List Ready
+
+**Spec**: [SPEC_ID]
+**Stories**: [count] stories identified
+
+[Story list here — names only]
+
+---
+
+**Approve this story breakdown?**
+
+- **Approve** - Write full stories and begin implementation
+- **Add Story** - Add a missing story (specify)
+- **Remove Story** - Remove a story (specify number)
+- **Split Story** - Story too large, split it (specify number)
+- **Merge Stories** - Two stories too small, merge (specify numbers)
+
+What would you like to do?
+```
+
+### 2b.3 Write Full Stories
+
+After story list approval, write each story in full — one at a time, appended to `spec.md` under a `## Stories` section:
+
+```markdown
+## Stories
+
+### Story 1: Create lh_it_bronze_dev lakehouse definition
+
+**As a** data engineer,
+**I want** a Fabric lakehouse definition tracked in Git,
+**So that** the bronze lakehouse can be synced to the it_dev workspace.
+
+**Acceptance Criteria:**
+- [ ] `fabric/it/lh_it_bronze_dev.Lakehouse/.platform` exists with correct logicalId
+- [ ] `lakehouse.metadata.json`, `alm.settings.json`, `shortcuts.metadata.json` present
+- [ ] Workspace ID matches `4681b1cd-...` (it_dev)
+
+**Implementation Notes:**
+- logicalId is a placeholder UUID4 (Fabric assigns real ID on first sync)
+- alm.settings.json should enable shortcuts
+
+---
+
+### Story 2: ...
+```
+
+**Story sizing rules:**
+- Max 5 acceptance criteria per story
+- Each criterion is testable/verifiable
+- No story should take more than ~30 min to implement
+
+Commit stories after writing:
+```bash
+git add ./projects/<project>/docs/specs/[spec-id]/spec.md
+git commit -m "spec: add stories for [spec-id]"
+```
 
 ---
 

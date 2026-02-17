@@ -239,7 +239,11 @@ Gate #1: Full SDD Selected
            ↓
     Gate #2: Spec Approval
            ↓
-    Implementation (platform-aware)
+    Story Splitting (names only, small stories)
+           ↓
+    Gate #2b: Story List Approval
+           ↓
+    Write Full Stories → Implementation (platform-aware)
            ↓
     Verification
            ↓
