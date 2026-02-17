@@ -18,6 +18,7 @@ This project uses the following Model Context Protocol servers:
 | `/sdd` | Spec-Driven Development - implement features with full traceability |
 | `/document` | Documentation maintenance - audit, create, update docs |
 | `/architect` | Architecture guidance - decisions, planning, reviews |
+| `/generate-mock-data` | Generate synthetic data for PII sources without test environments |
 | `/init-project` | Set up a new project subrepo |
 | `/init-data-ai` | First-time setup of this AI team |
 | `/improve-ai` | Capture learnings and improve the AI team |
