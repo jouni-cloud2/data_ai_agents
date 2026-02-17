@@ -17,3 +17,42 @@ Lessons learned about common pitfalls when working with Microsoft Fabric.
 **Status**: Generalized
 
 ---
+
+## 2026-02-17 Pushing to Wrong Branch — Domain Workspaces Use Domain Branches
+
+**Context**: IT dev deployment — pushed implementation to `main`, workspace never showed changes
+**Problem**: Assumed `main` was the deployment target. Fabric `it_dev` workspace syncs to `it_dev` branch, not `main`.
+**Solution**: Always match branch name to workspace name: `{domain}_dev` workspace → `{domain}_dev` branch. Run `git branch -a` to see all available branches and confirm the right target. Check Fabric workspace Git integration settings if unsure.
+**Generalization**: In projects with per-domain branching, never default to pushing `main`. Always confirm which branch each workspace is watching before pushing.
+**Related**:
+- Docs: `docs/platforms/fabric/pitfalls.md` (Pushing to Wrong Branch section)
+
+**Status**: Generalized
+
+---
+
+## 2026-02-17 Duplicate logicalId in .platform Files Blocks Fabric Sync
+
+**Context**: IT dev deployment — Fabric sync failed with "Failed to fix duplicate IDs"
+**Problem**: Placeholder UUID `a1b2c3d4-e5f6-7890-abcd-ef1234567890` was copy-pasted into both `lh_it_bronze_dev.Lakehouse/.platform` and `silver_transform_freshservice.Notebook/.platform`. Fabric rejected the sync.
+**Solution**: (1) For existing Fabric artifacts: find the real logicalId in the most recent Fabric auto-commit on that branch (`git log --oneline | grep Committing`, then `git show <hash>:path/.platform`). (2) For new artifacts: generate a fresh UUID4 per artifact. (3) Verify uniqueness: `grep -r "logicalId" fabric/ --include=".platform" | sort -t: -k3`.
+**Generalization**: All `.platform` logicalIds must be globally unique. Placeholder IDs are a deployment risk — always use real Fabric IDs for existing items and fresh UUIDs for new items.
+**Related**:
+- Docs: `docs/platforms/fabric/pitfalls.md` (Duplicate logicalId section)
+
+**Status**: Generalized
+
+---
+
+## 2026-02-17 Fabric Auto-Commits Can Create Corrupted Nested Paths
+
+**Context**: IT dev deployment — cherry-pick onto it_dev caused cascading conflicts due to `fabric/it/fabric/it/` nested path
+**Problem**: Previous Fabric auto-commits had stored files at the wrong path (`fabric/it/fabric/it/` instead of `fabric/it/`). Not noticed until cherry-pick conflicted on these files.
+**Solution**: Before applying changes to a domain branch: pull latest, inspect `find fabric/{domain} -type f | sort` for corrupted nesting, remove bad paths with `git rm -r --cached` + `rm -rf`, then re-apply correct files with `git checkout main -- fabric/{domain}/`.
+**Generalization**: Never assume a Fabric domain branch has clean structure. Always inspect with `find` before cherry-picking or merging. Fabric Git auto-commits can go wrong if the workspace folder mapping changes.
+**Related**:
+- Docs: `docs/platforms/fabric/pitfalls.md` (Inspect Target Branch section)
+
+**Status**: Generalized
+
+---

@@ -388,6 +388,91 @@ spark.sql("DESCRIBE HISTORY table_name LIMIT 10").show()
 spark.sparkContext.getConf().getAll()
 ```
 
+## Deployment / Branch Pitfalls
+
+### Pushing to Wrong Branch (main vs domain branch)
+
+**Problem**: Changes pushed to `main` never appear in the Fabric workspace because the workspace syncs from a domain-specific branch, not `main`.
+
+**Cause**: Each Fabric domain workspace (`{domain}_dev`) is synced to its own Git branch (`{domain}_dev`), not `main`. `main` may be used for prod or as a merge target only.
+
+**Symptom**: Git push succeeds, but Fabric Source Control shows no pending changes.
+
+**Check before pushing:**
+```bash
+# List all branches — domain workspaces have matching branch names
+git branch -a | grep "_dev\|_test"
+
+# it_dev workspace → it_dev branch
+# projects_dev workspace → projects_dev branch
+# mdm_dev workspace → mdm_dev branch
+git push origin it_dev   # NOT main
+```
+
+**Rule**: Match branch name to workspace name. When in doubt, check the Fabric workspace settings → Git integration tab to confirm the connected branch.
+
 ---
 
-*Last Updated: 2026-02-09*
+### Duplicate logicalId in `.platform` Files
+
+**Problem**: Fabric sync fails with "Failed to fix duplicate IDs — items being repaired are already in this workspace."
+
+**Cause**: Two or more `.platform` files share the same `logicalId` value. Often caused by copy-pasting placeholder UUIDs across multiple files.
+
+**Symptom**: Fabric Source Control shows an error after Update All; items may appear stuck.
+
+**How to find duplicates:**
+```bash
+grep -r "logicalId" fabric/ --include=".platform" | sort -t: -k3
+```
+
+**Fix — existing artifacts**: Use the real Fabric-assigned logicalId from the most recent Fabric auto-commit on that branch:
+```bash
+# Find Fabric auto-commits (they say "Committing N items from workspace...")
+git log --oneline | grep "Committing"
+
+# Get the real .platform from that commit
+git show <commit-hash>:fabric/it/lh_it_bronze_dev.Lakehouse/.platform
+```
+
+**Fix — new artifacts**: Generate a fresh UUID4 for each new artifact:
+```bash
+uuidgen | tr '[:upper:]' '[:lower:]'  # macOS
+```
+
+**Rule**: Every `.platform` file must have a unique `logicalId`. Never reuse placeholders. For existing Fabric items, always use the ID Fabric assigned.
+
+---
+
+### Inspect Target Branch Before Overwriting Files
+
+**Problem**: Cherry-picking or merging onto a domain branch causes cascading conflicts because the branch has unexpected structure (e.g. Fabric auto-committed files at wrong nested paths like `fabric/it/fabric/it/`).
+
+**Cause**: Fabric Git integration can auto-commit files at incorrect paths when the workspace → Git folder mapping is misconfigured.
+
+**How to check before applying changes:**
+```bash
+# Pull latest first
+git checkout it_dev && git pull origin it_dev
+
+# Check recent Fabric auto-commits
+git log --oneline -10
+
+# Inspect actual file structure
+find fabric/it -type f | sort
+
+# Look for corrupted nested paths like fabric/it/fabric/it/
+```
+
+**Fix**: Remove the bad nested path before applying new files:
+```bash
+git rm -r --cached fabric/it/fabric/
+rm -rf fabric/it/fabric/
+
+# Then apply correct files from main
+git checkout main -- fabric/it/
+```
+
+---
+
+*Last Updated: 2026-02-17*

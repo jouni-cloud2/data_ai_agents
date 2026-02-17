@@ -149,6 +149,44 @@ Create `./projects/<project>/docs/specs/{spec-id}/spec.md`:
 
 ---
 
+## Step 1b: Fabric Branch Pre-Flight (Fabric Platform Only)
+
+**Before creating any branches or pushing**, confirm the target deployment branch for each Fabric workspace involved in the spec.
+
+```bash
+# List all domain branches
+git branch -a | grep -E "_dev|_test|_prod"
+```
+
+For each workspace affected by this spec, record:
+
+| Workspace | Git Branch | Confirmed? |
+|-----------|------------|------------|
+| `it_dev` | `it_dev` | ☐ |
+| `projects_dev` | `projects_dev` | ☐ |
+| `mdm_dev` | `mdm_dev` | ☐ |
+
+**Also check `.platform` logicalId uniqueness** for any new artifacts:
+```bash
+# Verify no duplicate logicalIds already exist
+grep -r "logicalId" fabric/ --include=".platform" | awk -F'"' '{print $4}' | sort | uniq -d
+# Empty output = no duplicates (good)
+```
+
+**And inspect target branch structure** before any merge/cherry-pick:
+```bash
+git checkout {domain}_dev && git pull origin {domain}_dev
+find fabric/{domain} -type f | sort   # Look for unexpected nested paths
+```
+
+If corrupted paths found (e.g. `fabric/it/fabric/it/`), clean up before proceeding:
+```bash
+git rm -r --cached fabric/{domain}/fabric/
+rm -rf fabric/{domain}/fabric/
+```
+
+---
+
 ## Step 2: Create Feature Branch
 
 ```bash
