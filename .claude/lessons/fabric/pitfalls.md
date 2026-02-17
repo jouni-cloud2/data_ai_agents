@@ -44,6 +44,20 @@ Lessons learned about common pitfalls when working with Microsoft Fabric.
 
 ---
 
+## 2026-02-17 Wrong workspaceId in Pipeline TridentNotebook Activities
+
+**Context**: IT dev deployment — pipelines failed with "One of its dependencies can't be found" during Update all
+**Problem**: Pipeline `pipeline-content.json` used `workspaceId: "4681b1cd-..."` (real workspace ID) for same-workspace TridentNotebook activities. Fabric then resolves `notebookId` as a **physical item ID**, not a `logicalId` — which doesn't match what's in the notebook `.platform` files.
+**Solution**: For TridentNotebook activities referencing notebooks in the **same workspace**, always use `workspaceId: "00000000-0000-0000-0000-000000000000"`. This tells Fabric to resolve `notebookId` as a `logicalId`, matching the notebook's `.platform` file entry. Fabric's own auto-commits always use the zero UUID for same-workspace references.
+**Verification**: `grep -r "workspaceId" fabric/ --include="pipeline-content.json"` — every same-workspace entry must be `00000000-0000-0000-0000-000000000000`.
+**Generalization**: Only use the real workspace ID when referencing notebooks in a **different** workspace (cross-workspace pipeline). For all same-workspace references, use the zero UUID placeholder.
+**Related**:
+- Docs: `docs/platforms/fabric/pitfalls.md`
+
+**Status**: Generalized
+
+---
+
 ## 2026-02-17 Fabric Auto-Commits Can Create Corrupted Nested Paths
 
 **Context**: IT dev deployment — cherry-pick onto it_dev caused cascading conflicts due to `fabric/it/fabric/it/` nested path

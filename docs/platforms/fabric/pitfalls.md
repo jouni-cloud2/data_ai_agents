@@ -475,4 +475,26 @@ git checkout main -- fabric/it/
 
 ---
 
+### Wrong `workspaceId` in Pipeline TridentNotebook Activities
+
+**Problem**: Fabric Update All fails with "One of its dependencies can't be found" even though the notebook exists in the workspace and has the correct `logicalId` in its `.platform` file.
+
+**Cause**: The pipeline `pipeline-content.json` uses the real workspace ID (`"workspaceId": "4681b1cd-..."`) for a same-workspace TridentNotebook activity. Fabric interprets `notebookId` as a **physical item ID** when a real workspace ID is provided — but the `.platform` file stores a `logicalId`, which is different.
+
+**Rule**: For notebooks in the **same workspace**, always use the zero UUID:
+```json
+"workspaceId": "00000000-0000-0000-0000-000000000000"
+```
+This tells Fabric to resolve `notebookId` as a `logicalId` (matching the `.platform` file). This is also what Fabric writes in its own auto-commits.
+
+**Only use the real workspace ID** when referencing a notebook in a **different workspace** (cross-workspace pipeline), and in that case the `notebookId` must be the physical item ID from that workspace.
+
+**Verification command:**
+```bash
+grep -r "workspaceId" fabric/ --include="pipeline-content.json"
+# Every same-workspace entry must be: "00000000-0000-0000-0000-000000000000"
+```
+
+---
+
 *Last Updated: 2026-02-17*
